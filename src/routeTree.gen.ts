@@ -13,11 +13,22 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedOfficerRouteImport } from './routes/_authenticated/officer'
 import { Route as AuthenticatedCitizenRouteImport } from './routes/_authenticated/citizen'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOfficerIndexRouteImport } from './routes/_authenticated/officer/index'
 import { Route as AuthenticatedCitizenIndexRouteImport } from './routes/_authenticated/citizen/index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedOfficerQueueRouteImport } from './routes/_authenticated/officer/queue'
+import { Route as AuthenticatedOfficerNotificationsRouteImport } from './routes/_authenticated/officer/notifications'
+import { Route as AuthenticatedOfficerMapRouteImport } from './routes/_authenticated/officer/map'
 import { Route as AuthenticatedCitizenTrackRouteImport } from './routes/_authenticated/citizen/track'
 import { Route as AuthenticatedCitizenNotificationsRouteImport } from './routes/_authenticated/citizen/notifications'
 import { Route as AuthenticatedCitizenFileRouteImport } from './routes/_authenticated/citizen/file'
+import { Route as AuthenticatedAdminWaterBodiesRouteImport } from './routes/_authenticated/admin/water-bodies'
+import { Route as AuthenticatedAdminSlaRouteImport } from './routes/_authenticated/admin/sla'
+import { Route as AuthenticatedAdminOfficersRouteImport } from './routes/_authenticated/admin/officers'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
+import { Route as AuthenticatedAdminMapRouteImport } from './routes/_authenticated/admin/map'
+import { Route as AuthenticatedAdminComplaintsRouteImport } from './routes/_authenticated/admin/complaints'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -38,6 +49,11 @@ const AuthenticatedCitizenRoute = AuthenticatedCitizenRouteImport.update({
   path: '/citizen',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedOfficerIndexRoute =
   AuthenticatedOfficerIndexRouteImport.update({
     id: '/',
@@ -50,6 +66,28 @@ const AuthenticatedCitizenIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedCitizenRoute,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedOfficerQueueRoute =
+  AuthenticatedOfficerQueueRouteImport.update({
+    id: '/queue',
+    path: '/queue',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedOfficerNotificationsRoute =
+  AuthenticatedOfficerNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedOfficerMapRoute = AuthenticatedOfficerMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AuthenticatedOfficerRoute,
+} as any)
 const AuthenticatedCitizenTrackRoute =
   AuthenticatedCitizenTrackRouteImport.update({
     id: '/track',
@@ -68,22 +106,77 @@ const AuthenticatedCitizenFileRoute =
     path: '/file',
     getParentRoute: () => AuthenticatedCitizenRoute,
   } as any)
+const AuthenticatedAdminWaterBodiesRoute =
+  AuthenticatedAdminWaterBodiesRouteImport.update({
+    id: '/water-bodies',
+    path: '/water-bodies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSlaRoute = AuthenticatedAdminSlaRouteImport.update({
+  id: '/sla',
+  path: '/sla',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminOfficersRoute =
+  AuthenticatedAdminOfficersRouteImport.update({
+    id: '/officers',
+    path: '/officers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMapRoute = AuthenticatedAdminMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminComplaintsRoute =
+  AuthenticatedAdminComplaintsRouteImport.update({
+    id: '/complaints',
+    path: '/complaints',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/citizen': typeof AuthenticatedCitizenRouteWithChildren
   '/officer': typeof AuthenticatedOfficerRouteWithChildren
+  '/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
+  '/admin/map': typeof AuthenticatedAdminMapRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/admin/officers': typeof AuthenticatedAdminOfficersRoute
+  '/admin/sla': typeof AuthenticatedAdminSlaRoute
+  '/admin/water-bodies': typeof AuthenticatedAdminWaterBodiesRoute
   '/citizen/file': typeof AuthenticatedCitizenFileRoute
   '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/officer/map': typeof AuthenticatedOfficerMapRoute
+  '/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
+  '/officer/queue': typeof AuthenticatedOfficerQueueRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/citizen/': typeof AuthenticatedCitizenIndexRoute
   '/officer/': typeof AuthenticatedOfficerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
+  '/admin/map': typeof AuthenticatedAdminMapRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/admin/officers': typeof AuthenticatedAdminOfficersRoute
+  '/admin/sla': typeof AuthenticatedAdminSlaRoute
+  '/admin/water-bodies': typeof AuthenticatedAdminWaterBodiesRoute
   '/citizen/file': typeof AuthenticatedCitizenFileRoute
   '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/officer/map': typeof AuthenticatedOfficerMapRoute
+  '/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
+  '/officer/queue': typeof AuthenticatedOfficerQueueRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/citizen': typeof AuthenticatedCitizenIndexRoute
   '/officer': typeof AuthenticatedOfficerIndexRoute
 }
@@ -91,11 +184,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/citizen': typeof AuthenticatedCitizenRouteWithChildren
   '/_authenticated/officer': typeof AuthenticatedOfficerRouteWithChildren
+  '/_authenticated/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
+  '/_authenticated/admin/map': typeof AuthenticatedAdminMapRoute
+  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/_authenticated/admin/officers': typeof AuthenticatedAdminOfficersRoute
+  '/_authenticated/admin/sla': typeof AuthenticatedAdminSlaRoute
+  '/_authenticated/admin/water-bodies': typeof AuthenticatedAdminWaterBodiesRoute
   '/_authenticated/citizen/file': typeof AuthenticatedCitizenFileRoute
   '/_authenticated/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/_authenticated/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/_authenticated/officer/map': typeof AuthenticatedOfficerMapRoute
+  '/_authenticated/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
+  '/_authenticated/officer/queue': typeof AuthenticatedOfficerQueueRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/citizen/': typeof AuthenticatedCitizenIndexRoute
   '/_authenticated/officer/': typeof AuthenticatedOfficerIndexRoute
 }
@@ -103,30 +207,62 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/citizen'
     | '/officer'
+    | '/admin/complaints'
+    | '/admin/map'
+    | '/admin/notifications'
+    | '/admin/officers'
+    | '/admin/sla'
+    | '/admin/water-bodies'
     | '/citizen/file'
     | '/citizen/notifications'
     | '/citizen/track'
+    | '/officer/map'
+    | '/officer/notifications'
+    | '/officer/queue'
+    | '/admin/'
     | '/citizen/'
     | '/officer/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/complaints'
+    | '/admin/map'
+    | '/admin/notifications'
+    | '/admin/officers'
+    | '/admin/sla'
+    | '/admin/water-bodies'
     | '/citizen/file'
     | '/citizen/notifications'
     | '/citizen/track'
+    | '/officer/map'
+    | '/officer/notifications'
+    | '/officer/queue'
+    | '/admin'
     | '/citizen'
     | '/officer'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/admin'
     | '/_authenticated/citizen'
     | '/_authenticated/officer'
+    | '/_authenticated/admin/complaints'
+    | '/_authenticated/admin/map'
+    | '/_authenticated/admin/notifications'
+    | '/_authenticated/admin/officers'
+    | '/_authenticated/admin/sla'
+    | '/_authenticated/admin/water-bodies'
     | '/_authenticated/citizen/file'
     | '/_authenticated/citizen/notifications'
     | '/_authenticated/citizen/track'
+    | '/_authenticated/officer/map'
+    | '/_authenticated/officer/notifications'
+    | '/_authenticated/officer/queue'
+    | '/_authenticated/admin/'
     | '/_authenticated/citizen/'
     | '/_authenticated/officer/'
   fileRoutesById: FileRoutesById
@@ -166,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCitizenRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/officer/': {
       id: '/_authenticated/officer/'
       path: '/'
@@ -179,6 +322,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/citizen/'
       preLoaderRoute: typeof AuthenticatedCitizenIndexRouteImport
       parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/officer/queue': {
+      id: '/_authenticated/officer/queue'
+      path: '/queue'
+      fullPath: '/officer/queue'
+      preLoaderRoute: typeof AuthenticatedOfficerQueueRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/notifications': {
+      id: '/_authenticated/officer/notifications'
+      path: '/notifications'
+      fullPath: '/officer/notifications'
+      preLoaderRoute: typeof AuthenticatedOfficerNotificationsRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/map': {
+      id: '/_authenticated/officer/map'
+      path: '/map'
+      fullPath: '/officer/map'
+      preLoaderRoute: typeof AuthenticatedOfficerMapRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
     }
     '/_authenticated/citizen/track': {
       id: '/_authenticated/citizen/track'
@@ -201,8 +372,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCitizenFileRouteImport
       parentRoute: typeof AuthenticatedCitizenRoute
     }
+    '/_authenticated/admin/water-bodies': {
+      id: '/_authenticated/admin/water-bodies'
+      path: '/water-bodies'
+      fullPath: '/admin/water-bodies'
+      preLoaderRoute: typeof AuthenticatedAdminWaterBodiesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/sla': {
+      id: '/_authenticated/admin/sla'
+      path: '/sla'
+      fullPath: '/admin/sla'
+      preLoaderRoute: typeof AuthenticatedAdminSlaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/officers': {
+      id: '/_authenticated/admin/officers'
+      path: '/officers'
+      fullPath: '/admin/officers'
+      preLoaderRoute: typeof AuthenticatedAdminOfficersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/map': {
+      id: '/_authenticated/admin/map'
+      path: '/map'
+      fullPath: '/admin/map'
+      preLoaderRoute: typeof AuthenticatedAdminMapRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/complaints': {
+      id: '/_authenticated/admin/complaints'
+      path: '/complaints'
+      fullPath: '/admin/complaints'
+      preLoaderRoute: typeof AuthenticatedAdminComplaintsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminComplaintsRoute: typeof AuthenticatedAdminComplaintsRoute
+  AuthenticatedAdminMapRoute: typeof AuthenticatedAdminMapRoute
+  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
+  AuthenticatedAdminOfficersRoute: typeof AuthenticatedAdminOfficersRoute
+  AuthenticatedAdminSlaRoute: typeof AuthenticatedAdminSlaRoute
+  AuthenticatedAdminWaterBodiesRoute: typeof AuthenticatedAdminWaterBodiesRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminComplaintsRoute: AuthenticatedAdminComplaintsRoute,
+  AuthenticatedAdminMapRoute: AuthenticatedAdminMapRoute,
+  AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
+  AuthenticatedAdminOfficersRoute: AuthenticatedAdminOfficersRoute,
+  AuthenticatedAdminSlaRoute: AuthenticatedAdminSlaRoute,
+  AuthenticatedAdminWaterBodiesRoute: AuthenticatedAdminWaterBodiesRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedCitizenRouteChildren {
   AuthenticatedCitizenFileRoute: typeof AuthenticatedCitizenFileRoute
@@ -223,10 +459,17 @@ const AuthenticatedCitizenRouteWithChildren =
   AuthenticatedCitizenRoute._addFileChildren(AuthenticatedCitizenRouteChildren)
 
 interface AuthenticatedOfficerRouteChildren {
+  AuthenticatedOfficerMapRoute: typeof AuthenticatedOfficerMapRoute
+  AuthenticatedOfficerNotificationsRoute: typeof AuthenticatedOfficerNotificationsRoute
+  AuthenticatedOfficerQueueRoute: typeof AuthenticatedOfficerQueueRoute
   AuthenticatedOfficerIndexRoute: typeof AuthenticatedOfficerIndexRoute
 }
 
 const AuthenticatedOfficerRouteChildren: AuthenticatedOfficerRouteChildren = {
+  AuthenticatedOfficerMapRoute: AuthenticatedOfficerMapRoute,
+  AuthenticatedOfficerNotificationsRoute:
+    AuthenticatedOfficerNotificationsRoute,
+  AuthenticatedOfficerQueueRoute: AuthenticatedOfficerQueueRoute,
   AuthenticatedOfficerIndexRoute: AuthenticatedOfficerIndexRoute,
 }
 
@@ -234,11 +477,13 @@ const AuthenticatedOfficerRouteWithChildren =
   AuthenticatedOfficerRoute._addFileChildren(AuthenticatedOfficerRouteChildren)
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCitizenRoute: typeof AuthenticatedCitizenRouteWithChildren
   AuthenticatedOfficerRoute: typeof AuthenticatedOfficerRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCitizenRoute: AuthenticatedCitizenRouteWithChildren,
   AuthenticatedOfficerRoute: AuthenticatedOfficerRouteWithChildren,
 }
