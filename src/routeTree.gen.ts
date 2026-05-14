@@ -9,38 +9,142 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedOfficerRouteImport } from './routes/_authenticated/officer'
+import { Route as AuthenticatedCitizenRouteImport } from './routes/_authenticated/citizen'
+import { Route as AuthenticatedOfficerIndexRouteImport } from './routes/_authenticated/officer/index'
+import { Route as AuthenticatedCitizenIndexRouteImport } from './routes/_authenticated/citizen/index'
+import { Route as AuthenticatedCitizenTrackRouteImport } from './routes/_authenticated/citizen/track'
+import { Route as AuthenticatedCitizenNotificationsRouteImport } from './routes/_authenticated/citizen/notifications'
+import { Route as AuthenticatedCitizenFileRouteImport } from './routes/_authenticated/citizen/file'
 
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedOfficerRoute = AuthenticatedOfficerRouteImport.update({
+  id: '/officer',
+  path: '/officer',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCitizenRoute = AuthenticatedCitizenRouteImport.update({
+  id: '/citizen',
+  path: '/citizen',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOfficerIndexRoute =
+  AuthenticatedOfficerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedCitizenIndexRoute =
+  AuthenticatedCitizenIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCitizenRoute,
+  } as any)
+const AuthenticatedCitizenTrackRoute =
+  AuthenticatedCitizenTrackRouteImport.update({
+    id: '/track',
+    path: '/track',
+    getParentRoute: () => AuthenticatedCitizenRoute,
+  } as any)
+const AuthenticatedCitizenNotificationsRoute =
+  AuthenticatedCitizenNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedCitizenRoute,
+  } as any)
+const AuthenticatedCitizenFileRoute =
+  AuthenticatedCitizenFileRouteImport.update({
+    id: '/file',
+    path: '/file',
+    getParentRoute: () => AuthenticatedCitizenRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/citizen': typeof AuthenticatedCitizenRouteWithChildren
+  '/officer': typeof AuthenticatedOfficerRouteWithChildren
+  '/citizen/file': typeof AuthenticatedCitizenFileRoute
+  '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
+  '/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/citizen/': typeof AuthenticatedCitizenIndexRoute
+  '/officer/': typeof AuthenticatedOfficerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/citizen/file': typeof AuthenticatedCitizenFileRoute
+  '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
+  '/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/citizen': typeof AuthenticatedCitizenIndexRoute
+  '/officer': typeof AuthenticatedOfficerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/citizen': typeof AuthenticatedCitizenRouteWithChildren
+  '/_authenticated/officer': typeof AuthenticatedOfficerRouteWithChildren
+  '/_authenticated/citizen/file': typeof AuthenticatedCitizenFileRoute
+  '/_authenticated/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
+  '/_authenticated/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/_authenticated/citizen/': typeof AuthenticatedCitizenIndexRoute
+  '/_authenticated/officer/': typeof AuthenticatedOfficerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/citizen'
+    | '/officer'
+    | '/citizen/file'
+    | '/citizen/notifications'
+    | '/citizen/track'
+    | '/citizen/'
+    | '/officer/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/citizen/file'
+    | '/citizen/notifications'
+    | '/citizen/track'
+    | '/citizen'
+    | '/officer'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/citizen'
+    | '/_authenticated/officer'
+    | '/_authenticated/citizen/file'
+    | '/_authenticated/citizen/notifications'
+    | '/_authenticated/citizen/track'
+    | '/_authenticated/citizen/'
+    | '/_authenticated/officer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +152,104 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/officer': {
+      id: '/_authenticated/officer'
+      path: '/officer'
+      fullPath: '/officer'
+      preLoaderRoute: typeof AuthenticatedOfficerRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/citizen': {
+      id: '/_authenticated/citizen'
+      path: '/citizen'
+      fullPath: '/citizen'
+      preLoaderRoute: typeof AuthenticatedCitizenRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/officer/': {
+      id: '/_authenticated/officer/'
+      path: '/'
+      fullPath: '/officer/'
+      preLoaderRoute: typeof AuthenticatedOfficerIndexRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/citizen/': {
+      id: '/_authenticated/citizen/'
+      path: '/'
+      fullPath: '/citizen/'
+      preLoaderRoute: typeof AuthenticatedCitizenIndexRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/citizen/track': {
+      id: '/_authenticated/citizen/track'
+      path: '/track'
+      fullPath: '/citizen/track'
+      preLoaderRoute: typeof AuthenticatedCitizenTrackRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/citizen/notifications': {
+      id: '/_authenticated/citizen/notifications'
+      path: '/notifications'
+      fullPath: '/citizen/notifications'
+      preLoaderRoute: typeof AuthenticatedCitizenNotificationsRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/citizen/file': {
+      id: '/_authenticated/citizen/file'
+      path: '/file'
+      fullPath: '/citizen/file'
+      preLoaderRoute: typeof AuthenticatedCitizenFileRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
   }
 }
 
+interface AuthenticatedCitizenRouteChildren {
+  AuthenticatedCitizenFileRoute: typeof AuthenticatedCitizenFileRoute
+  AuthenticatedCitizenNotificationsRoute: typeof AuthenticatedCitizenNotificationsRoute
+  AuthenticatedCitizenTrackRoute: typeof AuthenticatedCitizenTrackRoute
+  AuthenticatedCitizenIndexRoute: typeof AuthenticatedCitizenIndexRoute
+}
+
+const AuthenticatedCitizenRouteChildren: AuthenticatedCitizenRouteChildren = {
+  AuthenticatedCitizenFileRoute: AuthenticatedCitizenFileRoute,
+  AuthenticatedCitizenNotificationsRoute:
+    AuthenticatedCitizenNotificationsRoute,
+  AuthenticatedCitizenTrackRoute: AuthenticatedCitizenTrackRoute,
+  AuthenticatedCitizenIndexRoute: AuthenticatedCitizenIndexRoute,
+}
+
+const AuthenticatedCitizenRouteWithChildren =
+  AuthenticatedCitizenRoute._addFileChildren(AuthenticatedCitizenRouteChildren)
+
+interface AuthenticatedOfficerRouteChildren {
+  AuthenticatedOfficerIndexRoute: typeof AuthenticatedOfficerIndexRoute
+}
+
+const AuthenticatedOfficerRouteChildren: AuthenticatedOfficerRouteChildren = {
+  AuthenticatedOfficerIndexRoute: AuthenticatedOfficerIndexRoute,
+}
+
+const AuthenticatedOfficerRouteWithChildren =
+  AuthenticatedOfficerRoute._addFileChildren(AuthenticatedOfficerRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedCitizenRoute: typeof AuthenticatedCitizenRouteWithChildren
+  AuthenticatedOfficerRoute: typeof AuthenticatedOfficerRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCitizenRoute: AuthenticatedCitizenRouteWithChildren,
+  AuthenticatedOfficerRoute: AuthenticatedOfficerRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
