@@ -44,7 +44,7 @@ function Page() {
   const clusters: any[][] = [];
   for (const a of withGeo) {
     if (seen.has(a.id)) continue;
-    const cl = withGeo.filter((b: any) => haversineKm({ lat: a.lat, lng: a.lng }, { lat: b.lat, lng: b.lng }) < 1);
+    const cl = withGeo.filter((b: any) => haversineKm({ lat: a.lat as number, lng: a.lng as number }, { lat: b.lat as number, lng: b.lng as number }) < 1);
     if (cl.length >= 2) { cl.forEach((c: any) => seen.add(c.id)); clusters.push(cl); }
   }
 
