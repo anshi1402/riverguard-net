@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Navigate } from "@tanstack/react-router";
-import { LayoutDashboard, FileText, Users, Activity, Map, Droplets, Bell } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Activity, Map, Droplets, Bell, Brain } from "lucide-react";
 import { RoleShell } from "@/components/app/RoleShell";
 import { useAuth } from "@/lib/auth";
 
@@ -12,6 +12,7 @@ function Layout() {
     <RoleShell brand="Water Body Protection" items={[
       { to: "/admin",            label: "Dashboard",       icon: LayoutDashboard },
       { to: "/admin/complaints", label: "Complaints",      icon: FileText },
+      { to: "/admin/ai-alerts",  label: "AI Alerts",       icon: Brain },
       { to: "/admin/officers",   label: "Officer Tracking",icon: Users },
       { to: "/admin/sla",        label: "SLA Monitoring",  icon: Activity },
       { to: "/admin/map",        label: "Map View",        icon: Map },
