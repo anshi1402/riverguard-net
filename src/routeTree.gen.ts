@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOfficerQueueRouteImport } from './routes/_authenticated/officer/queue'
 import { Route as AuthenticatedOfficerNotificationsRouteImport } from './routes/_authenticated/officer/notifications'
 import { Route as AuthenticatedOfficerMapRouteImport } from './routes/_authenticated/officer/map'
+import { Route as AuthenticatedOfficerAiAlertsRouteImport } from './routes/_authenticated/officer/ai-alerts'
 import { Route as AuthenticatedCitizenTrackRouteImport } from './routes/_authenticated/citizen/track'
 import { Route as AuthenticatedCitizenNotificationsRouteImport } from './routes/_authenticated/citizen/notifications'
 import { Route as AuthenticatedCitizenFileRouteImport } from './routes/_authenticated/citizen/file'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedAdminOfficersRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
 import { Route as AuthenticatedAdminMapRouteImport } from './routes/_authenticated/admin/map'
 import { Route as AuthenticatedAdminComplaintsRouteImport } from './routes/_authenticated/admin/complaints'
+import { Route as AuthenticatedAdminAiAlertsRouteImport } from './routes/_authenticated/admin/ai-alerts'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -88,6 +90,12 @@ const AuthenticatedOfficerMapRoute = AuthenticatedOfficerMapRouteImport.update({
   path: '/map',
   getParentRoute: () => AuthenticatedOfficerRoute,
 } as any)
+const AuthenticatedOfficerAiAlertsRoute =
+  AuthenticatedOfficerAiAlertsRouteImport.update({
+    id: '/ai-alerts',
+    path: '/ai-alerts',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
 const AuthenticatedCitizenTrackRoute =
   AuthenticatedCitizenTrackRouteImport.update({
     id: '/track',
@@ -140,12 +148,19 @@ const AuthenticatedAdminComplaintsRoute =
     path: '/complaints',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAiAlertsRoute =
+  AuthenticatedAdminAiAlertsRouteImport.update({
+    id: '/ai-alerts',
+    path: '/ai-alerts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/citizen': typeof AuthenticatedCitizenRouteWithChildren
   '/officer': typeof AuthenticatedOfficerRouteWithChildren
+  '/admin/ai-alerts': typeof AuthenticatedAdminAiAlertsRoute
   '/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
   '/admin/map': typeof AuthenticatedAdminMapRoute
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
@@ -155,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/citizen/file': typeof AuthenticatedCitizenFileRoute
   '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/officer/ai-alerts': typeof AuthenticatedOfficerAiAlertsRoute
   '/officer/map': typeof AuthenticatedOfficerMapRoute
   '/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
   '/officer/queue': typeof AuthenticatedOfficerQueueRoute
@@ -164,6 +180,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/ai-alerts': typeof AuthenticatedAdminAiAlertsRoute
   '/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
   '/admin/map': typeof AuthenticatedAdminMapRoute
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
@@ -173,6 +190,7 @@ export interface FileRoutesByTo {
   '/citizen/file': typeof AuthenticatedCitizenFileRoute
   '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/officer/ai-alerts': typeof AuthenticatedOfficerAiAlertsRoute
   '/officer/map': typeof AuthenticatedOfficerMapRoute
   '/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
   '/officer/queue': typeof AuthenticatedOfficerQueueRoute
@@ -187,6 +205,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/citizen': typeof AuthenticatedCitizenRouteWithChildren
   '/_authenticated/officer': typeof AuthenticatedOfficerRouteWithChildren
+  '/_authenticated/admin/ai-alerts': typeof AuthenticatedAdminAiAlertsRoute
   '/_authenticated/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
   '/_authenticated/admin/map': typeof AuthenticatedAdminMapRoute
   '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
@@ -196,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/citizen/file': typeof AuthenticatedCitizenFileRoute
   '/_authenticated/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/_authenticated/citizen/track': typeof AuthenticatedCitizenTrackRoute
+  '/_authenticated/officer/ai-alerts': typeof AuthenticatedOfficerAiAlertsRoute
   '/_authenticated/officer/map': typeof AuthenticatedOfficerMapRoute
   '/_authenticated/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
   '/_authenticated/officer/queue': typeof AuthenticatedOfficerQueueRoute
@@ -210,6 +230,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/citizen'
     | '/officer'
+    | '/admin/ai-alerts'
     | '/admin/complaints'
     | '/admin/map'
     | '/admin/notifications'
@@ -219,6 +240,7 @@ export interface FileRouteTypes {
     | '/citizen/file'
     | '/citizen/notifications'
     | '/citizen/track'
+    | '/officer/ai-alerts'
     | '/officer/map'
     | '/officer/notifications'
     | '/officer/queue'
@@ -228,6 +250,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/ai-alerts'
     | '/admin/complaints'
     | '/admin/map'
     | '/admin/notifications'
@@ -237,6 +260,7 @@ export interface FileRouteTypes {
     | '/citizen/file'
     | '/citizen/notifications'
     | '/citizen/track'
+    | '/officer/ai-alerts'
     | '/officer/map'
     | '/officer/notifications'
     | '/officer/queue'
@@ -250,6 +274,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/citizen'
     | '/_authenticated/officer'
+    | '/_authenticated/admin/ai-alerts'
     | '/_authenticated/admin/complaints'
     | '/_authenticated/admin/map'
     | '/_authenticated/admin/notifications'
@@ -259,6 +284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/citizen/file'
     | '/_authenticated/citizen/notifications'
     | '/_authenticated/citizen/track'
+    | '/_authenticated/officer/ai-alerts'
     | '/_authenticated/officer/map'
     | '/_authenticated/officer/notifications'
     | '/_authenticated/officer/queue'
@@ -351,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOfficerMapRouteImport
       parentRoute: typeof AuthenticatedOfficerRoute
     }
+    '/_authenticated/officer/ai-alerts': {
+      id: '/_authenticated/officer/ai-alerts'
+      path: '/ai-alerts'
+      fullPath: '/officer/ai-alerts'
+      preLoaderRoute: typeof AuthenticatedOfficerAiAlertsRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
     '/_authenticated/citizen/track': {
       id: '/_authenticated/citizen/track'
       path: '/track'
@@ -414,10 +447,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminComplaintsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/ai-alerts': {
+      id: '/_authenticated/admin/ai-alerts'
+      path: '/ai-alerts'
+      fullPath: '/admin/ai-alerts'
+      preLoaderRoute: typeof AuthenticatedAdminAiAlertsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAiAlertsRoute: typeof AuthenticatedAdminAiAlertsRoute
   AuthenticatedAdminComplaintsRoute: typeof AuthenticatedAdminComplaintsRoute
   AuthenticatedAdminMapRoute: typeof AuthenticatedAdminMapRoute
   AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
@@ -428,6 +469,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAiAlertsRoute: AuthenticatedAdminAiAlertsRoute,
   AuthenticatedAdminComplaintsRoute: AuthenticatedAdminComplaintsRoute,
   AuthenticatedAdminMapRoute: AuthenticatedAdminMapRoute,
   AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
@@ -459,6 +501,7 @@ const AuthenticatedCitizenRouteWithChildren =
   AuthenticatedCitizenRoute._addFileChildren(AuthenticatedCitizenRouteChildren)
 
 interface AuthenticatedOfficerRouteChildren {
+  AuthenticatedOfficerAiAlertsRoute: typeof AuthenticatedOfficerAiAlertsRoute
   AuthenticatedOfficerMapRoute: typeof AuthenticatedOfficerMapRoute
   AuthenticatedOfficerNotificationsRoute: typeof AuthenticatedOfficerNotificationsRoute
   AuthenticatedOfficerQueueRoute: typeof AuthenticatedOfficerQueueRoute
@@ -466,6 +509,7 @@ interface AuthenticatedOfficerRouteChildren {
 }
 
 const AuthenticatedOfficerRouteChildren: AuthenticatedOfficerRouteChildren = {
+  AuthenticatedOfficerAiAlertsRoute: AuthenticatedOfficerAiAlertsRoute,
   AuthenticatedOfficerMapRoute: AuthenticatedOfficerMapRoute,
   AuthenticatedOfficerNotificationsRoute:
     AuthenticatedOfficerNotificationsRoute,
@@ -499,3 +543,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
