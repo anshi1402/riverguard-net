@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Droplets, Shield, Users, MapPin, Clock, Eye, Bot, ArrowRight, Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,6 @@ const CITIZEN_DEMO = { email: "citizen@bluegeo.gov.in", password: "Citizen@1234"
 
 function Landing() {
   const { user, role, loading, signIn, signUp } = useAuth();
-  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("authority");
   const [rank, setRank] = useState<OfficerRank>("vao");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
