@@ -1,7 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Droplets, LogOut, Bell } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
-import { useAuth } from "@/lib/auth";
+import { useAuth, RANK_LABEL } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ export interface NavItem { to: string; label: string; icon: ComponentType<{ clas
 
 export function RoleShell({ items, brand, children }: { items: NavItem[]; brand: string; children: ReactNode }) {
   const { profile, role, signOut } = useAuth();
+  const rankLabel = profile?.officer_rank ? RANK_LABEL[profile.officer_rank] : null;
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -29,7 +30,7 @@ export function RoleShell({ items, brand, children }: { items: NavItem[]; brand:
             </div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{profile?.full_name ?? "User"}</div>
-              <div className="text-xs capitalize text-sidebar-foreground/60">{role}</div>
+              <div className="truncate text-xs text-sidebar-foreground/60">{rankLabel ?? (role ?? "")}</div>
             </div>
           </div>
         </div>
