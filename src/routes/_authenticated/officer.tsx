@@ -9,7 +9,7 @@ function Layout() {
   const { role, loading } = useAuth();
   if (!loading && role && role !== "officer") return <Navigate to={role === "admin" ? "/admin" : "/citizen"} />;
   return (
-    <RoleShell brand="Officer Console" items={[
+    <RoleShell brand="Authority Console" items={[
       { to: "/officer",        label: "My Dashboard",       icon: LayoutDashboard },
       { to: "/officer/queue",  label: "Assigned Complaints",icon: ListChecks },
       { to: "/officer/ai-alerts", label: "AI Alerts",       icon: Brain },
