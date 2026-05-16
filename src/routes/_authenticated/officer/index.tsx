@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { useAuth, RANK_LABEL } from "@/lib/auth";
 import { StatusBadge } from "@/components/complaints/StatusBadge";
 import { SlaCountdown } from "@/components/complaints/SlaCountdown";
 
@@ -10,12 +10,16 @@ export const Route = createFileRoute("/_authenticated/officer/")({ component: Pa
 
 function Page() {
   const { profile } = useAuth();
+  const rank = profile?.officer_rank ?? null;
   const qc = useQueryClient();
   const { data } = useQuery({
-    queryKey: ["officer-home", profile?.district_id],
-    enabled: !!profile?.district_id,
+    queryKey: ["officer-home", profile?.district_id, rank],
+    enabled: !!profile?.district_id && !!rank,
     queryFn: async () => {
-      const r = await supabase.from("complaints").select("*, water_bodies(name)").eq("district_id", profile!.district_id!);
+      let q = supabase.from("complaints").select("*, water_bodies(name)").eq("district_id", profile!.district_id!);
+      if (rank === "wrd") q = q.in("type", ["water_flow_obstruction","supply_channel","surplus_channel"]);
+      else if (rank !== "collector") q = q.eq("current_rank", rank as string);
+      const r = await q;
       if (r.error) throw r.error; return r.data;
     },
   });
@@ -37,8 +41,8 @@ function Page() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Officer Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Live queue for your district.</p>
+        <h1 className="text-3xl font-bold">Authority Dashboard</h1>
+        <p className="text-sm text-muted-foreground">{rank ? RANK_LABEL[rank] : ""} — live queue scoped to your responsibility.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-4">
         {Object.entries(stats).map(([l, v]) => (
