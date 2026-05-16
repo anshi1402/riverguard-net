@@ -383,6 +383,9 @@ export type Database = {
         | "sewage"
         | "illegal_dumping"
         | "other"
+        | "supply_channel"
+        | "surplus_channel"
+        | "water_flow_obstruction"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -529,6 +532,9 @@ export const Constants = {
         "sewage",
         "illegal_dumping",
         "other",
+        "supply_channel",
+        "surplus_channel",
+        "water_flow_obstruction",
       ],
     },
   },
