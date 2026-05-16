@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_alerts: {
+        Row: {
+          confidence: number | null
+          description: string | null
+          detected_at: string
+          district_id: string
+          id: string
+          lat: number | null
+          lng: number | null
+          severity: Database["public"]["Enums"]["complaint_severity"]
+          source: string
+          title: string
+          water_body_id: string | null
+        }
+        Insert: {
+          confidence?: number | null
+          description?: string | null
+          detected_at?: string
+          district_id: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          severity?: Database["public"]["Enums"]["complaint_severity"]
+          source: string
+          title: string
+          water_body_id?: string | null
+        }
+        Update: {
+          confidence?: number | null
+          description?: string | null
+          detected_at?: string
+          district_id?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          severity?: Database["public"]["Enums"]["complaint_severity"]
+          source?: string
+          title?: string
+          water_body_id?: string | null
+        }
+        Relationships: []
+      }
       complaint_events: {
         Row: {
           action: string
@@ -58,10 +100,13 @@ export type Database = {
           citizen_id: string
           code: string
           created_at: string
+          current_rank: string
           description: string
           district_id: string
+          escalation_level: number
           id: string
           image_url: string | null
+          last_escalated_at: string | null
           lat: number | null
           lng: number | null
           reinvestigation_count: number
@@ -81,10 +126,13 @@ export type Database = {
           citizen_id: string
           code?: string
           created_at?: string
+          current_rank?: string
           description: string
           district_id: string
+          escalation_level?: number
           id?: string
           image_url?: string | null
+          last_escalated_at?: string | null
           lat?: number | null
           lng?: number | null
           reinvestigation_count?: number
@@ -104,10 +152,13 @@ export type Database = {
           citizen_id?: string
           code?: string
           created_at?: string
+          current_rank?: string
           description?: string
           district_id?: string
+          escalation_level?: number
           id?: string
           image_url?: string | null
+          last_escalated_at?: string | null
           lat?: number | null
           lng?: number | null
           reinvestigation_count?: number
@@ -202,6 +253,7 @@ export type Database = {
           district_id: string | null
           full_name: string | null
           id: string
+          officer_rank: string | null
           on_duty: boolean
           phone: string | null
           updated_at: string
@@ -212,6 +264,7 @@ export type Database = {
           district_id?: string | null
           full_name?: string | null
           id: string
+          officer_rank?: string | null
           on_duty?: boolean
           phone?: string | null
           updated_at?: string
@@ -222,6 +275,7 @@ export type Database = {
           district_id?: string | null
           full_name?: string | null
           id?: string
+          officer_rank?: string | null
           on_duty?: boolean
           phone?: string | null
           updated_at?: string
@@ -259,6 +313,8 @@ export type Database = {
           created_at: string
           district_id: string
           id: string
+          lat: number | null
+          lng: number | null
           name: string
           risk_level: Database["public"]["Enums"]["complaint_severity"]
           type: string
@@ -267,6 +323,8 @@ export type Database = {
           created_at?: string
           district_id: string
           id?: string
+          lat?: number | null
+          lng?: number | null
           name: string
           risk_level?: Database["public"]["Enums"]["complaint_severity"]
           type: string
@@ -275,6 +333,8 @@ export type Database = {
           created_at?: string
           district_id?: string
           id?: string
+          lat?: number | null
+          lng?: number | null
           name?: string
           risk_level?: Database["public"]["Enums"]["complaint_severity"]
           type?: string
@@ -294,6 +354,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      escalate_overdue_complaints: { Args: never; Returns: number }
       get_user_district: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
