@@ -1,109 +1,120 @@
+# BlueGeo AI — Major Restructure
 
-# BlueGeo AI — Smart Water Body Protection System
+## 1. Auth model: 2 logins (Authority + Citizen)
 
-A full‑stack Tamil Nadu water body complaint management platform with three roles, realtime sync, geo‑tagged image uploads, and 48‑hour SLA enforcement. Visual style mirrors your reference (deep navy hero with cyan/teal accents, blue gradient sign‑in card, dark sidebar shell for dashboards).
+Landing page now has **two tabs only**: Authority / Citizen.
 
-## Scope (initial 3 districts)
-From your CSV: **Tirunelveli, Thoothukudi, Tenkasi** — including their rivers, dams/reservoirs, lakes/tanks/wetlands and waterfalls.
+When signing up or signing in as Authority, a dropdown **"Select Your Role"** is shown with:
+- Village Administrative Officer (VAO)
+- Tahsildar
+- Revenue Divisional Officer (RDO)
+- District Collector
+- PWD / WRD Engineer
 
-## Pages & flows
+Internally still uses one DB role `officer` for all 5, plus a new `officer_rank` column on `profiles` to distinguish them. `admin` role kept only for the seeded super-admin account (hidden from public login UI). All 5 authority ranks land on a unified `/authority` shell whose sidebar + dashboard data adapts to the rank.
 
-### Public landing (`/`)
-- Left: "Protecting Tamil Nadu's Water Bodies Together" hero with feature bullets and stats (3 Districts, 100+ Water Bodies, etc.)
-- Right: Sign‑in card with role tabs **Administrator / Field Officer / Citizen**, email + password, Sign In button
-- Sign‑up link for citizens; demo credentials hint for each role
+Demo credentials updated to: `authority@bluegeo.gov.in` + `citizen@bluegeo.gov.in`. Sign-up form asks district + rank for authority users.
 
-### Citizen dashboard (`/citizen/*`)
-- **Home** — greeting, "Report a Complaint" CTA, Filed/In‑Progress/Resolved counters, recent complaints list
-- **File Complaint** — step flow:
-  1. Pick district (only 3 available) → water body dropdown filtered to that district
-  2. Complaint type (Encroachment, Water Contamination, Dead Fish, Oil Spill, Sewage, Other) + description
-  3. **Upload image** (must contain GPS EXIF; we read and verify) **OR** **Take photo** (in‑browser camera + `navigator.geolocation` overlay stamped on image)
-  4. Submit → record created, officers in district notified
-- **My Complaints** — status timeline (Submitted → Assigned → In Progress → Resolved). On Resolved, citizen sees **Re‑investigate** action (one‑time) which reopens with reason
-- **Notifications**
+## 2. Database changes
 
-### Officer dashboard (`/officer/*`)
-- **My Dashboard** — Assigned / In Progress / Resolved Today / Overdue tiles, SLA breach banner
-- **Assigned Complaints** — list scoped to officer's district, sortable by remaining SLA, status update (Acknowledge → In Progress → Submit Resolution Report with notes + optional photo)
-- **Map View** — pins for complaints in district
-- **Notifications**
-- 48h SLA countdown on every card; auto‑escalation when breached
+```sql
+ALTER TYPE app_role -- keep as-is (admin/officer/citizen)
+ALTER TABLE profiles ADD COLUMN officer_rank TEXT
+  CHECK (officer_rank IN ('vao','tahsildar','rdo','collector','wrd'));
 
-### Admin dashboard (`/admin/*`)
-- **Dashboard** — SLA breach banner, KPI tiles (Total Complaints, Active, Resolved, SLA Breached, Escalated, Officers on Duty, Critical, High‑Risk Bodies, Districts Covered, SLA Compliance %), trend chart (filed vs resolved vs breach), district distribution bar chart, severity pie, water body risk summary
-- **Complaints** — full table with filters
-- **Officer Tracking** — officers, district, on‑duty, open caseload, SLA performance
-- **SLA Monitoring & Escalation Center** — list of breached cases
-- **District View / Map View / Water Bodies / Reports / Notifications / Officer Notices**
+ALTER TABLE complaints
+  ADD COLUMN current_rank TEXT NOT NULL DEFAULT 'vao',
+  ADD COLUMN escalation_level INT NOT NULL DEFAULT 0,
+  ADD COLUMN last_escalated_at TIMESTAMPTZ;
 
-## Realtime
-Supabase Realtime channels on `complaints` and `complaint_events` so any insert/update by one role instantly reflects in the other two dashboards (no refresh).
-
-## Design system
-- Deep navy background `oklch(0.20 0.05 250)` with cyan/teal accent `oklch(0.78 0.14 195)` matching the hero
-- Blue gradient primary button for citizen, green accent for officer header, dark navy for admin
-- Inter (body) + a tight display weight for headings
-- Sidebar shell shared across all three dashboards — only the brand stripe color changes per role
-
-## Technical details
-
-**Backend**: Lovable Cloud (Postgres + Auth + Storage + Realtime).
-
-**Schema**
-- `profiles` (id → auth.users, full_name, phone, district, avatar_url)
-- `user_roles` (user_id, role: `admin` | `officer` | `citizen`) — separate table, `has_role()` SECURITY DEFINER fn
-- `districts` (id, name) — seeded with 3
-- `water_bodies` (id, district_id, name, type) — seeded from CSV
-- `complaints` (id, code `CMP‑####`, citizen_id, water_body_id, district_id, type, description, image_url, lat, lng, status, severity, assigned_officer_id, sla_deadline (filed_at + 48h), resolved_at, reinvestigation_count, created_at, updated_at)
-- `complaint_events` (id, complaint_id, actor_id, action, notes, photo_url, created_at) — full audit trail
-- `notifications` (id, user_id, complaint_id, title, body, read, created_at)
-
-**RLS**
-- Citizens: read/insert own complaints, read events on own complaints
-- Officers: read/update complaints in their district, insert events
-- Admin: full read; insert notices via `has_role('admin')`
-- All tables RLS enabled; role checks via `has_role()` to avoid recursion
-
-**SLA & escalation**: `sla_deadline = filed_at + 48h`. A `pg_cron` job every 15 min flips overdue open complaints to `sla_breached`, inserts an admin notification, and logs an escalation event. Frontend also displays live countdowns.
-
-**Geo‑tagging**
-- Upload path: parse EXIF GPS in browser via `exifr`; reject if missing
-- Camera path: `getUserMedia` + `navigator.geolocation.getCurrentPosition`; stamp lat/lng/timestamp onto the captured frame via canvas before upload
-- Stored in Supabase Storage bucket `complaint-photos` (public read, authenticated write)
-
-**Charts**: Recharts (line, bar, pie) for admin analytics.
-
-**Files to create** (high level)
-```
-src/routes/
-  index.tsx                     landing + sign-in
-  signup.tsx                    citizen sign-up
-  _authenticated.tsx            session gate
-  _authenticated/citizen/...    home, file, my-complaints, complaint.$id, notifications
-  _authenticated/officer/...    dashboard, complaints, complaint.$id, map, notifications
-  _authenticated/admin/...      dashboard, complaints, officers, sla, districts, map, water-bodies, reports, notifications
-src/components/
-  layout/RoleSidebar.tsx, AppHeader.tsx
-  complaints/ComplaintCard, StatusBadge, SlaCountdown, GeoCamera, GeoUploader
-  charts/TrendChart, DistrictBars, SeverityPie, RiskSummary
-src/lib/
-  complaints.functions.ts, sla.ts, exif.ts, geo.ts
+-- Restrict complaint type enum (or use TEXT with CHECK) to water-only categories:
+-- water_body_encroachment, supply_channel, surplus_channel,
+-- water_flow_obstruction, dumping_waste
 ```
 
-## What's intentionally out of scope for v1
-- SMS / WhatsApp notifications (in‑app only)
-- Live map tiles (we use a stylized district map; can swap to Mapbox later)
-- Multi‑language UI (English only first; Tamil later)
+Escalation worker: a SQL function `escalate_overdue_complaints()` invoked from a cron-style server route — every complaint whose `current_rank` SLA (48h) has elapsed and is still not `in_progress`/`resolved` advances to the next rank (VAO → Tahsildar → RDO → Collector) and writes a `complaint_events` row + notifies the new assignee group.
 
-## Build order
-1. Enable Lovable Cloud, create schema + RLS + seed 3 districts and water bodies
-2. Design system + landing page with role‑tabbed sign‑in
-3. Auth + role‑aware routing + shared sidebar shell
-4. Citizen flow (file → camera/upload geo → track → re‑investigate)
-5. Officer flow (assigned list, SLA countdown, resolution report)
-6. Admin dashboard (KPIs, charts, SLA monitoring)
-7. Realtime subscriptions + pg_cron SLA breach job
-8. Polish, demo seed data, QA all three roles
+RLS update: `officers read district complaints` policy extended so officer sees complaint only when `current_rank` matches their `officer_rank` OR they are WRD (sees all technical cases in district) OR they are Collector (sees all in district).
 
-Approve and I'll start building.
+## 3. Citizen complaint form
+
+Replace the existing TYPES list with exactly:
+- Water Body Encroachment (Lake / Tank / Pond)
+- Supply Channel Encroachment
+- Surplus / Drain Channel Encroachment
+- Water Flow Obstruction
+- Dumping / Waste in Water Bodies
+
+Drop the old `encroachment / contamination / dead_fish / oil_spill / sewage / other` options.
+
+## 4. Authority dashboards (rank-scoped)
+
+Single `/authority` route shell; sidebar identical, but **Queue/Dashboard data is filtered by rank**:
+
+- **VAO** → complaints where `current_rank='vao'` in their district (initial field verification)
+- **Tahsildar** → `current_rank='tahsildar'` (enforcement)
+- **RDO** → `current_rank='rdo'` (escalated)
+- **District Collector** → all complaints in district (full oversight)
+- **WRD Engineer** → all complaints in district flagged technical (water flow obstruction + supply/surplus channel)
+
+Header chip shows rank label. Resolution still requires geo-tagged proof photo.
+
+## 5. Map View (officer + admin)
+
+Upgrade `ComplaintMap` → **`DistrictMap`** component:
+- Renders the selected district as a shaded polygon background (using a static bounding box + simple SVG outline derived from water-body coordinates — no external map tiles required).
+- Plots **water bodies** as blue droplet markers (from `water_bodies` table; add `lat`,`lng` columns + seed coords for the 3 districts).
+- Plots **complaints** colored by status (red/amber/green).
+- Plots **AI alert hotspots** as pulsing rings (computed from clustering existing complaints + new `ai_alerts` table).
+- Legend + filter toggles: Water Bodies / Complaints / Alerts.
+
+Officer map → locked to their district. Admin map → district selector (all 3).
+
+## 6. AI Alerts page (officer + admin)
+
+Three tabbed sections:
+1. **Fencing Alerts** — simulated geo-fence breaches: any complaint whose coords fall within 200m of a registered water body boundary triggers a fencing alert row. Pre-seeded with a handful of demo rows.
+2. **Satellite Alerts** — pre-seeded `ai_alerts` rows with `source='satellite'` representing detected encroachment/turbidity changes per water body (mocked, with date + confidence %).
+3. **Overdue (SLA Breach)** — live query of complaints where `sla_deadline < now()` and status not in (`resolved`). Click-through opens the complaint.
+
+New table:
+```sql
+CREATE TABLE ai_alerts (
+  id uuid PK, district_id uuid, water_body_id uuid,
+  source TEXT CHECK (source IN ('fencing','satellite')),
+  severity complaint_severity,
+  title TEXT, description TEXT,
+  lat double precision, lng double precision,
+  confidence numeric, detected_at timestamptz default now()
+);
+```
+
+## 7. Files touched
+
+- `supabase/migrations/<new>.sql` — schema + RLS + escalation fn + seed water-body coords + seed `ai_alerts`
+- Seed-update via `supabase--insert` to set demo data.
+- `src/lib/auth.tsx` — extend Profile with `officer_rank`; signUp accepts rank.
+- `src/routes/index.tsx` — collapse to 2 tabs, add rank dropdown for authority.
+- New `src/routes/_authenticated/authority.tsx` + child routes (`index`, `queue`, `ai-alerts`, `map`, `notifications`). Delete or alias `officer/*` and `admin/*` (keep `admin/*` accessible only for seeded super-admin).
+- `src/routes/_authenticated/citizen/file.tsx` — replace TYPES list.
+- New `src/components/maps/DistrictMap.tsx` (replaces ComplaintMap usage).
+- New `src/routes/api/public/cron-escalate.ts` server route to run the escalation function (callable by external cron).
+- `src/components/app/RoleShell.tsx` — show officer rank under name.
+
+```text
+Landing
+ ├── Authority tab → email/pwd + "Select Your Role" dropdown (signup)
+ └── Citizen tab   → email/pwd
+
+Authority shell (/authority)
+ ├── Dashboard (rank-filtered metrics)
+ ├── Queue     (rank-filtered complaints + escalate/resolve)
+ ├── AI Alerts (Fencing | Satellite | Overdue tabs)
+ ├── Map View  (district map + water bodies + complaints + alerts)
+ └── Notifications
+
+Escalation: VAO --48h--> Tahsildar --48h--> RDO --48h--> Collector
+WRD Engineer: parallel access to technical-category complaints
+```
+
+After approval I'll run the migration first (single tool call), then ship the code changes in one batch.

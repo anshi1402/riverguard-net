@@ -1,28 +1,33 @@
-import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Droplets, Shield, User, Users, MapPin, Clock, Eye, Bot, ArrowRight, Loader2, Info } from "lucide-react";
+import { Droplets, Shield, Users, MapPin, Clock, Eye, Bot, ArrowRight, Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth, type AppRole } from "@/lib/auth";
+import { useAuth, RANK_LABEL, type OfficerRank } from "@/lib/auth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
-const DEMO: Record<AppRole, { email: string; password: string; label: string }> = {
-  admin:   { email: "admin@bluegeo.gov.in",   password: "Admin@1234",   label: "Demo: admin@bluegeo.gov.in" },
-  officer: { email: "officer@bluegeo.gov.in", password: "Officer@1234", label: "Demo: officer@bluegeo.gov.in (Tirunelveli)" },
-  citizen: { email: "citizen@bluegeo.gov.in", password: "Citizen@1234", label: "Demo: citizen@bluegeo.gov.in" },
+type Tab = "authority" | "citizen";
+
+const RANK_DEMO: Record<OfficerRank, { email: string; password: string }> = {
+  vao:        { email: "vao@bluegeo.gov.in",        password: "Authority@1234" },
+  tahsildar:  { email: "tahsildar@bluegeo.gov.in",  password: "Authority@1234" },
+  rdo:        { email: "rdo@bluegeo.gov.in",        password: "Authority@1234" },
+  collector:  { email: "collector@bluegeo.gov.in",  password: "Authority@1234" },
+  wrd:        { email: "wrd@bluegeo.gov.in",        password: "Authority@1234" },
 };
+const CITIZEN_DEMO = { email: "citizen@bluegeo.gov.in", password: "Citizen@1234" };
 
 function Landing() {
   const { user, role, loading, signIn, signUp } = useAuth();
-  const navigate = useNavigate();
-  const [tab, setTab] = useState<AppRole>("admin");
+  const [tab, setTab] = useState<Tab>("authority");
+  const [rank, setRank] = useState<OfficerRank>("vao");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState(DEMO.admin.email);
-  const [password, setPassword] = useState(DEMO.admin.password);
+  const [email, setEmail] = useState(RANK_DEMO.vao.email);
+  const [password, setPassword] = useState(RANK_DEMO.vao.password);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [district, setDistrict] = useState("Tirunelveli");
@@ -32,11 +37,16 @@ function Landing() {
     return <Navigate to={role === "admin" ? "/admin" : role === "officer" ? "/officer" : "/citizen"} />;
   }
 
-  const switchRole = (r: AppRole) => {
-    setTab(r);
+  const switchTab = (t: Tab) => {
+    setTab(t);
     setMode("signin");
-    setEmail(DEMO[r].email);
-    setPassword(DEMO[r].password);
+    if (t === "authority") { setEmail(RANK_DEMO[rank].email); setPassword(RANK_DEMO[rank].password); }
+    else { setEmail(CITIZEN_DEMO.email); setPassword(CITIZEN_DEMO.password); }
+  };
+  const switchRank = (r: OfficerRank) => {
+    setRank(r);
+    setEmail(RANK_DEMO[r].email);
+    setPassword(RANK_DEMO[r].password);
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -48,7 +58,10 @@ function Landing() {
       if (error) return toast.error(error);
       toast.success("Welcome back");
     } else {
-      const { error } = await signUp(email, password, { full_name: fullName, phone, role: "citizen", district });
+      const meta = tab === "citizen"
+        ? { full_name: fullName, phone, role: "citizen" as const, district }
+        : { full_name: fullName, phone, role: "officer" as const, district, officer_rank: rank };
+      const { error } = await signUp(email, password, meta);
       setBusy(false);
       if (error) return toast.error(error);
       toast.success("Account created — signing in...");
@@ -56,10 +69,9 @@ function Landing() {
     }
   };
 
-  const roles: { id: AppRole; label: string; sub: string; icon: typeof Shield }[] = [
-    { id: "admin",   label: "Administrator", sub: "Full system access", icon: Shield },
-    { id: "officer", label: "Field Officer", sub: "Complaint resolution", icon: User },
-    { id: "citizen", label: "Citizen",       sub: "File & track",        icon: Users },
+  const tabs: { id: Tab; label: string; sub: string; icon: typeof Shield }[] = [
+    { id: "authority", label: "Authority", sub: "Government officers", icon: Shield },
+    { id: "citizen",   label: "Citizen",   sub: "File & track",        icon: Users },
   ];
 
   return (
@@ -130,14 +142,14 @@ function Landing() {
             {mode === "signin" && (
               <>
                 <p className="mt-6 text-sm font-medium">Login as</p>
-                <div className="mt-3 grid grid-cols-3 gap-3">
-                  {roles.map((r) => {
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {tabs.map((r) => {
                     const active = tab === r.id;
                     return (
                       <button
                         key={r.id}
                         type="button"
-                        onClick={() => switchRole(r.id)}
+                        onClick={() => switchTab(r.id)}
                         className={cn(
                           "flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition",
                           active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40",
@@ -155,10 +167,19 @@ function Landing() {
                   })}
                 </div>
 
+                {tab === "authority" && (
+                  <div className="mt-5 space-y-2">
+                    <Label htmlFor="rank">Select Your Role</Label>
+                    <select id="rank" value={rank} onChange={(e) => switchRank(e.target.value as OfficerRank)} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-medium">
+                      {(Object.keys(RANK_LABEL) as OfficerRank[]).map((k) => <option key={k} value={k}>{RANK_LABEL[k]}</option>)}
+                    </select>
+                  </div>
+                )}
+
                 <div className="mt-5 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm">
                   <Info className="mt-0.5 h-4 w-4 shrink-0 text-warning-foreground" />
                   <p className="text-warning-foreground/90">
-                    <span className="font-semibold">Demo:</span> Credentials auto-filled for {tab} role. Sign up the demo accounts first if needed.
+                    <span className="font-semibold">Demo:</span> Credentials auto-filled — just click Sign In.
                   </p>
                 </div>
               </>
@@ -167,6 +188,14 @@ function Landing() {
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               {mode === "signup" && (
                 <>
+                  {tab === "authority" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="rank2">Select Your Role</Label>
+                      <select id="rank2" value={rank} onChange={(e) => setRank(e.target.value as OfficerRank)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                        {(Object.keys(RANK_LABEL) as OfficerRank[]).map((k) => <option key={k} value={k}>{RANK_LABEL[k]}</option>)}
+                      </select>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input id="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Arun Kumar" />
@@ -202,7 +231,7 @@ function Landing() {
             </form>
 
             <p className="mt-5 text-center text-sm text-muted-foreground">
-              {mode === "signin" ? "New citizen? " : "Already have an account? "}
+              {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
               <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="font-semibold text-primary hover:underline">
                 {mode === "signin" ? "Create account" : "Sign in"}
               </button>

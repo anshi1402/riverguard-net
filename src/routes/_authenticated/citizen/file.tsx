@@ -15,12 +15,11 @@ import type { GeoPoint } from "@/lib/geo";
 export const Route = createFileRoute("/_authenticated/citizen/file")({ component: Page });
 
 const TYPES = [
-  { v: "encroachment", l: "Encroachment" },
-  { v: "contamination", l: "Water Contamination" },
-  { v: "dead_fish", l: "Dead Fish" },
-  { v: "oil_spill", l: "Oil Spill" },
-  { v: "sewage", l: "Sewage Discharge" },
-  { v: "other", l: "Other" },
+  { v: "encroachment",            l: "Water Body Encroachment (Lake / Tank / Pond)" },
+  { v: "supply_channel",          l: "Supply Channel Encroachment" },
+  { v: "surplus_channel",         l: "Surplus / Drain Channel Encroachment" },
+  { v: "water_flow_obstruction",  l: "Water Flow Obstruction" },
+  { v: "illegal_dumping",         l: "Dumping / Waste in Water Bodies" },
 ];
 
 function Page() {
@@ -72,7 +71,7 @@ function Page() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold">File a Complaint</h1>
-        <p className="text-sm text-muted-foreground">Report an issue with a water body. A geo-tagged photo is required.</p>
+        <p className="text-sm text-muted-foreground">Report water encroachment or related issues. A geo-tagged photo is required. Routed to VAO → Tahsildar → RDO → Collector if unresolved within 48h.</p>
       </div>
 
       <div className="space-y-5 rounded-2xl border bg-card p-6 shadow-card">
@@ -95,7 +94,7 @@ function Page() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Complaint Type</Label>
+            <Label>Type of Water Encroachment</Label>
             <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={type} onChange={(e) => setType(e.target.value)}>
               {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
             </select>
