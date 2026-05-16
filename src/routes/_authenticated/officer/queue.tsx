@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { MapPin, Image as ImageIcon, Loader2 } from "lucide-react";
+import { MapPin, Image as ImageIcon, Loader2, ArrowUpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { useAuth, RANK_LABEL } from "@/lib/auth";
 import { StatusBadge } from "@/components/complaints/StatusBadge";
 import { SlaCountdown } from "@/components/complaints/SlaCountdown";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,19 @@ export const Route = createFileRoute("/_authenticated/officer/queue")({ componen
 function Page() {
   const { user, profile } = useAuth();
   const qc = useQueryClient();
+  const rank = profile?.officer_rank ?? null;
   const { data } = useQuery({
-    queryKey: ["officer-queue", profile?.district_id],
-    enabled: !!profile?.district_id,
+    queryKey: ["officer-queue", profile?.district_id, rank],
+    enabled: !!profile?.district_id && !!rank,
     queryFn: async () => {
-      const r = await supabase.from("complaints").select("*, water_bodies(name,type), districts(name)").eq("district_id", profile!.district_id!).order("sla_deadline");
+      let q = supabase.from("complaints").select("*, water_bodies(name,type), districts(name)").eq("district_id", profile!.district_id!);
+      // WRD sees all technical water cases; Collector sees all; others see only their stage
+      if (rank === "wrd") {
+        q = q.in("type", ["water_flow_obstruction", "supply_channel", "surplus_channel"]);
+      } else if (rank !== "collector") {
+        q = q.eq("current_rank", rank as string);
+      }
+      const r = await q.order("sla_deadline");
       if (r.error) throw r.error; return r.data;
     },
   });
@@ -43,11 +51,26 @@ function Page() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const escalate = useMutation({
+    mutationFn: async (c: any) => {
+      const next = c.current_rank === "vao" ? "tahsildar" : c.current_rank === "tahsildar" ? "rdo" : "collector";
+      const r = await supabase.from("complaints").update({
+        current_rank: next,
+        escalation_level: (c.escalation_level ?? 0) + 1,
+        last_escalated_at: new Date().toISOString(),
+        sla_deadline: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+      }).eq("id", c.id);
+      if (r.error) throw r.error;
+    },
+    onSuccess: () => { toast.success("Escalated to next authority"); qc.invalidateQueries({ queryKey: ["officer-queue"] }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Assigned Complaints</h1>
-        <p className="text-sm text-muted-foreground">All open complaints in your district. Sorted by SLA deadline.</p>
+        <p className="text-sm text-muted-foreground">{rank ? RANK_LABEL[rank] : "Authority"} · {profile?.district_id ? "your district" : ""} — sorted by SLA deadline.</p>
       </div>
       {data?.length === 0 && <div className="rounded-2xl border bg-card p-12 text-center text-muted-foreground shadow-card">Queue is clear. Great work.</div>}
       <div className="space-y-3">
@@ -59,6 +82,7 @@ function Page() {
                   <span className="font-mono text-xs font-bold text-primary">{c.code}</span>
                   <StatusBadge status={c.status} />
                   <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wide">{c.severity}</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-primary">Stage: {c.current_rank}</span>
                   <SlaCountdown deadline={c.sla_deadline} resolved={c.status === "resolved"} />
                 </div>
                 <div className="mt-1 text-base font-semibold">{c.water_bodies?.name} · {c.districts?.name}</div>
@@ -73,6 +97,9 @@ function Page() {
                 {c.status === "submitted" && <Button size="sm" onClick={() => update.mutate({ id: c.id, patch: { status: "assigned" } })}>Acknowledge</Button>}
                 {(c.status === "assigned" || c.status === "submitted") && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "in_progress" } })}>Mark In Progress</Button>}
                 {(c.status === "in_progress" || c.status === "reinvestigate" || c.status === "assigned") && <ResolveDialog complaint={c} onDone={() => qc.invalidateQueries({ queryKey: ["officer-queue"] })} />}
+                {c.status !== "resolved" && c.current_rank !== "collector" && rank !== "wrd" && (
+                  <Button size="sm" variant="ghost" onClick={() => escalate.mutate(c)}><ArrowUpCircle className="mr-1 h-3.5 w-3.5" /> Escalate</Button>
+                )}
               </div>
             </div>
           </div>
