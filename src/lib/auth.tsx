@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
     ]);
     setRole((r?.role as AppRole) ?? null);
-    setProfile(p ?? null);
+    setProfile(p ? (p as unknown as Profile) : null);
   };
 
   useEffect(() => {
