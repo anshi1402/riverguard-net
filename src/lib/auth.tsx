@@ -3,6 +3,14 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "officer" | "citizen";
+export type OfficerRank = "vao" | "tahsildar" | "rdo" | "collector" | "wrd";
+export const RANK_LABEL: Record<OfficerRank, string> = {
+  vao: "Village Administrative Officer (VAO)",
+  tahsildar: "Tahsildar",
+  rdo: "Revenue Divisional Officer (RDO)",
+  collector: "District Collector",
+  wrd: "PWD / WRD Engineer",
+};
 
 export interface Profile {
   id: string;
@@ -11,6 +19,7 @@ export interface Profile {
   district_id: string | null;
   avatar_url: string | null;
   on_duty: boolean;
+  officer_rank: OfficerRank | null;
 }
 
 interface AuthCtx {
@@ -20,7 +29,7 @@ interface AuthCtx {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, meta: { full_name: string; phone: string; role: AppRole; district?: string }) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, meta: { full_name: string; phone: string; role: AppRole; district?: string; officer_rank?: OfficerRank }) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 }
