@@ -21,14 +21,14 @@ function Page() {
   const qc = useQueryClient();
   const rank = profile?.officer_rank ?? null;
   const { data } = useQuery({
-    queryKey: ["officer-queue", profile?.district_id, rank],
-    enabled: !!profile?.district_id && !!rank,
+    queryKey: ["officer-queue", rank],
+    enabled: !!rank,
     queryFn: async () => {
-      let q = supabase.from("complaints").select("*, water_bodies(name,type), districts(name)").eq("district_id", profile!.district_id!);
-      // WRD sees all technical water cases; Collector sees all; others see only their stage
+      let q = supabase.from("complaints").select("*, water_bodies(name,type), districts(name)");
+      // Queue remains action-stage based while dashboards show broader analytics.
       if (rank === "wrd") {
         q = q.in("type", ["water_flow_obstruction", "supply_channel", "surplus_channel"]);
-      } else if (rank !== "collector") {
+      } else {
         q = q.eq("current_rank", rank as string);
       }
       const r = await q.order("sla_deadline");
@@ -37,10 +37,9 @@ function Page() {
   });
 
   useEffect(() => {
-    if (!profile?.district_id) return;
     const ch = supabase.channel("officer-queue").on("postgres_changes", { event: "*", schema: "public", table: "complaints" }, () => qc.invalidateQueries({ queryKey: ["officer-queue"] })).subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [profile?.district_id, qc]);
+  }, [qc]);
 
   const update = useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: any }) => {
@@ -70,7 +69,7 @@ function Page() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Assigned Complaints</h1>
-        <p className="text-sm text-muted-foreground">{rank ? RANK_LABEL[rank] : "Authority"} · {profile?.district_id ? "your district" : ""} — sorted by SLA deadline.</p>
+        <p className="text-sm text-muted-foreground">{rank ? RANK_LABEL[rank] : "Authority"} — actionable complaints sorted by SLA deadline.</p>
       </div>
       {data?.length === 0 && <div className="rounded-2xl border bg-card p-12 text-center text-muted-foreground shadow-card">Queue is clear. Great work.</div>}
       <div className="space-y-3">
