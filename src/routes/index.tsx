@@ -1,6 +1,6 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Droplets, Shield, Users, MapPin, Clock, Eye, Bot, ArrowRight, Loader2, Info } from "lucide-react";
+import { Droplets, Shield, Users, MapPin, Clock, Eye, Bot, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -176,12 +176,6 @@ function Landing() {
                   </div>
                 )}
 
-                <div className="mt-5 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm">
-                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-warning-foreground" />
-                  <p className="text-warning-foreground/90">
-                    <span className="font-semibold">Demo:</span> Credentials auto-filled — just click Sign In.
-                  </p>
-                </div>
               </>
             )}
 
