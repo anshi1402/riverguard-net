@@ -95,7 +95,7 @@ function Page() {
               <div className="flex flex-col gap-2">
                 {c.status === "submitted" && <Button size="sm" onClick={() => update.mutate({ id: c.id, patch: { status: "assigned" } })}>Acknowledge</Button>}
                 {(c.status === "assigned" || c.status === "submitted") && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "in_progress" } })}>Mark In Progress</Button>}
-                {(c.status === "in_progress" || c.status === "reinvestigate" || c.status === "assigned") && <ResolveDialog complaint={c} onDone={() => qc.invalidateQueries({ queryKey: ["officer-queue"] })} />}
+                {(c.status === "in_progress" || c.status === "reinvestigating" || c.status === "assigned") && <ResolveDialog complaint={c} onDone={() => qc.invalidateQueries({ queryKey: ["officer-queue"] })} />}
                 {c.status !== "resolved" && c.current_rank !== "collector" && rank !== "wrd" && (
                   <Button size="sm" variant="ghost" onClick={() => escalate.mutate(c)}><ArrowUpCircle className="mr-1 h-3.5 w-3.5" /> Escalate</Button>
                 )}
