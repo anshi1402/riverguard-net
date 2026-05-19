@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, CheckCircle2, Clock, Droplets, FileText, Flame, MapPin, TrendingUp, Users } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, RANK_LABEL } from "@/lib/auth";
@@ -10,7 +11,7 @@ import { format, subDays, startOfDay, startOfMonth, subMonths } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/officer/")({ component: Page });
 
-const COLORS = ["#3b82f6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+const COLORS = ["var(--primary)", "var(--brand)", "var(--success)", "var(--warning)", "var(--destructive)", "var(--accent-foreground)"];
 const SENIOR = new Set(["tahsildar", "rdo", "collector"]);
 
 function Page() {
@@ -25,12 +26,8 @@ function Page() {
     enabled: !!rank,
     queryFn: async () => {
       let q = supabase.from("complaints").select("*, water_bodies(name), districts(name)");
-      if (!isCollector && profile?.district_id) q = q.eq("district_id", profile.district_id);
       if (rank === "wrd") q = q.in("type", ["water_flow_obstruction", "supply_channel", "surplus_channel"]);
-      else if (!isSenior && rank !== "collector") q = q.eq("current_rank", rank as string);
-      else if (rank === "tahsildar" || rank === "rdo") {
-        // Senior ranks see their stage + everything escalated below or visible in district
-      }
+      else if (!isSenior) q = q.eq("current_rank", rank as string);
       const r = await q.order("created_at", { ascending: false });
       if (r.error) throw r.error; return r.data;
     },
