@@ -28,7 +28,6 @@ function Page() {
   const [districtId, setDistrictId] = useState("");
   const [waterBodyId, setWaterBodyId] = useState("");
   const [type, setType] = useState("encroachment");
-  const [severity, setSeverity] = useState("medium");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [geo, setGeo] = useState<GeoPoint | null>(null);
@@ -57,7 +56,7 @@ function Page() {
       const { data: pub } = supabase.storage.from("complaint-photos").getPublicUrl(path);
       const ins = await supabase.from("complaints").insert({
         citizen_id: user.id, district_id: districtId, water_body_id: waterBodyId,
-        type: type as any, severity: severity as any, description, image_url: pub.publicUrl,
+        type: type as any, description, image_url: pub.publicUrl,
         lat: geo.lat, lng: geo.lng,
       }).select("code").single();
       if (ins.error) throw ins.error;
@@ -92,19 +91,11 @@ function Page() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Type of Water Encroachment</Label>
-            <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={type} onChange={(e) => setType(e.target.value)}>
-              {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label>Severity</Label>
-            <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={severity} onChange={(e) => setSeverity(e.target.value)}>
-              <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option>
-            </select>
-          </div>
+        <div className="space-y-2">
+          <Label>Type of Water Encroachment</Label>
+          <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={type} onChange={(e) => setType(e.target.value)}>
+            {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+          </select>
         </div>
 
         <div className="space-y-2">
@@ -119,16 +110,21 @@ function Page() {
             <GeoCamera onCapture={(f, g) => { setFile(f); setGeo(g); }} />
           </div>
           {preview && geo && (
-            <div className="mt-3 flex gap-3 rounded-xl border bg-muted/40 p-3">
+            <div className="mt-3 flex flex-wrap gap-3 rounded-xl border border-success/40 bg-success/5 p-3">
               <img src={preview} alt="evidence" className="h-24 w-32 rounded-md object-cover" />
               <div className="text-sm">
                 <div className="flex items-center gap-1.5 font-semibold text-success"><CheckCircle2 className="h-4 w-4" /> Geo-tag verified</div>
                 <div className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {geo.lat.toFixed(5)}, {geo.lng.toFixed(5)}</div>
+                <div className="mt-1 text-xs text-muted-foreground">Captured {new Date().toLocaleString()}</div>
+                <a className="mt-1 inline-block text-xs font-medium text-primary hover:underline" href={`https://www.google.com/maps?q=${geo.lat},${geo.lng}`} target="_blank" rel="noreferrer">View location on map</a>
               </div>
             </div>
           )}
+          {preview && !geo && (
+            <p className="mt-2 flex items-start gap-1.5 text-xs text-destructive"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" /> Location not verified yet — attach your current location or retake the photo with the in-app camera.</p>
+          )}
           {!geo && file === null && (
-            <p className="flex items-start gap-1.5 text-xs text-muted-foreground"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" /> Uploaded photos must contain GPS EXIF, or use the in-app camera.</p>
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground"><AlertTriangle className="mt-0.5 h-3.5 w-3.5" /> Upload a photo (GPS is read from EXIF, or you can attach your current location) or use the in-app camera.</p>
           )}
         </div>
 
