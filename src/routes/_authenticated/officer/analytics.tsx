@@ -117,12 +117,3 @@ function Page() {
     </div>
   );
 }
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/_authenticated/officer/analytics')({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  return <div>Hello "/_authenticated/officer/analytics"!</div>
-}
