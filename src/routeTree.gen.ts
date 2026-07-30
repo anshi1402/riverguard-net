@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOfficerQueueRouteImport } from './routes/_authenticated/officer/queue'
 import { Route as AuthenticatedOfficerNotificationsRouteImport } from './routes/_authenticated/officer/notifications'
 import { Route as AuthenticatedOfficerMapRouteImport } from './routes/_authenticated/officer/map'
+import { Route as AuthenticatedOfficerAnalyticsRouteImport } from './routes/_authenticated/officer/analytics'
 import { Route as AuthenticatedOfficerAiAlertsRouteImport } from './routes/_authenticated/officer/ai-alerts'
 import { Route as AuthenticatedCitizenTrackRouteImport } from './routes/_authenticated/citizen/track'
 import { Route as AuthenticatedCitizenNotificationsRouteImport } from './routes/_authenticated/citizen/notifications'
@@ -90,6 +91,12 @@ const AuthenticatedOfficerMapRoute = AuthenticatedOfficerMapRouteImport.update({
   path: '/map',
   getParentRoute: () => AuthenticatedOfficerRoute,
 } as any)
+const AuthenticatedOfficerAnalyticsRoute =
+  AuthenticatedOfficerAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
 const AuthenticatedOfficerAiAlertsRoute =
   AuthenticatedOfficerAiAlertsRouteImport.update({
     id: '/ai-alerts',
@@ -171,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/citizen/track': typeof AuthenticatedCitizenTrackRoute
   '/officer/ai-alerts': typeof AuthenticatedOfficerAiAlertsRoute
+  '/officer/analytics': typeof AuthenticatedOfficerAnalyticsRoute
   '/officer/map': typeof AuthenticatedOfficerMapRoute
   '/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
   '/officer/queue': typeof AuthenticatedOfficerQueueRoute
@@ -191,6 +199,7 @@ export interface FileRoutesByTo {
   '/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/citizen/track': typeof AuthenticatedCitizenTrackRoute
   '/officer/ai-alerts': typeof AuthenticatedOfficerAiAlertsRoute
+  '/officer/analytics': typeof AuthenticatedOfficerAnalyticsRoute
   '/officer/map': typeof AuthenticatedOfficerMapRoute
   '/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
   '/officer/queue': typeof AuthenticatedOfficerQueueRoute
@@ -216,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/citizen/notifications': typeof AuthenticatedCitizenNotificationsRoute
   '/_authenticated/citizen/track': typeof AuthenticatedCitizenTrackRoute
   '/_authenticated/officer/ai-alerts': typeof AuthenticatedOfficerAiAlertsRoute
+  '/_authenticated/officer/analytics': typeof AuthenticatedOfficerAnalyticsRoute
   '/_authenticated/officer/map': typeof AuthenticatedOfficerMapRoute
   '/_authenticated/officer/notifications': typeof AuthenticatedOfficerNotificationsRoute
   '/_authenticated/officer/queue': typeof AuthenticatedOfficerQueueRoute
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/citizen/notifications'
     | '/citizen/track'
     | '/officer/ai-alerts'
+    | '/officer/analytics'
     | '/officer/map'
     | '/officer/notifications'
     | '/officer/queue'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/citizen/notifications'
     | '/citizen/track'
     | '/officer/ai-alerts'
+    | '/officer/analytics'
     | '/officer/map'
     | '/officer/notifications'
     | '/officer/queue'
@@ -285,6 +297,7 @@ export interface FileRouteTypes {
     | '/_authenticated/citizen/notifications'
     | '/_authenticated/citizen/track'
     | '/_authenticated/officer/ai-alerts'
+    | '/_authenticated/officer/analytics'
     | '/_authenticated/officer/map'
     | '/_authenticated/officer/notifications'
     | '/_authenticated/officer/queue'
@@ -375,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/map'
       fullPath: '/officer/map'
       preLoaderRoute: typeof AuthenticatedOfficerMapRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/analytics': {
+      id: '/_authenticated/officer/analytics'
+      path: '/analytics'
+      fullPath: '/officer/analytics'
+      preLoaderRoute: typeof AuthenticatedOfficerAnalyticsRouteImport
       parentRoute: typeof AuthenticatedOfficerRoute
     }
     '/_authenticated/officer/ai-alerts': {
@@ -502,6 +522,7 @@ const AuthenticatedCitizenRouteWithChildren =
 
 interface AuthenticatedOfficerRouteChildren {
   AuthenticatedOfficerAiAlertsRoute: typeof AuthenticatedOfficerAiAlertsRoute
+  AuthenticatedOfficerAnalyticsRoute: typeof AuthenticatedOfficerAnalyticsRoute
   AuthenticatedOfficerMapRoute: typeof AuthenticatedOfficerMapRoute
   AuthenticatedOfficerNotificationsRoute: typeof AuthenticatedOfficerNotificationsRoute
   AuthenticatedOfficerQueueRoute: typeof AuthenticatedOfficerQueueRoute
@@ -510,6 +531,7 @@ interface AuthenticatedOfficerRouteChildren {
 
 const AuthenticatedOfficerRouteChildren: AuthenticatedOfficerRouteChildren = {
   AuthenticatedOfficerAiAlertsRoute: AuthenticatedOfficerAiAlertsRoute,
+  AuthenticatedOfficerAnalyticsRoute: AuthenticatedOfficerAnalyticsRoute,
   AuthenticatedOfficerMapRoute: AuthenticatedOfficerMapRoute,
   AuthenticatedOfficerNotificationsRoute:
     AuthenticatedOfficerNotificationsRoute,

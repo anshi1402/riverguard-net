@@ -17,7 +17,6 @@ const RANK_DEMO: Record<OfficerRank, { email: string; password: string }> = {
   tahsildar:  { email: "tahsildar@bluegeo.gov.in",  password: "Authority@1234" },
   rdo:        { email: "rdo@bluegeo.gov.in",        password: "Authority@1234" },
   collector:  { email: "collector@bluegeo.gov.in",  password: "Authority@1234" },
-  wrd:        { email: "wrd@bluegeo.gov.in",        password: "Authority@1234" },
 };
 const CITIZEN_DEMO = { email: "citizen@bluegeo.gov.in", password: "Citizen@1234" };
 

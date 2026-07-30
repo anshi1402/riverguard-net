@@ -3,13 +3,12 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "officer" | "citizen";
-export type OfficerRank = "vao" | "tahsildar" | "rdo" | "collector" | "wrd";
+export type OfficerRank = "vao" | "tahsildar" | "rdo" | "collector";
 export const RANK_LABEL: Record<OfficerRank, string> = {
   vao: "Village Administrative Officer (VAO)",
   tahsildar: "Tahsildar",
   rdo: "Revenue Divisional Officer (RDO)",
   collector: "District Collector",
-  wrd: "PWD / WRD Engineer",
 };
 
 export interface Profile {
