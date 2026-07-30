@@ -24,13 +24,11 @@ function Page() {
     queryKey: ["officer-queue", rank],
     enabled: !!rank,
     queryFn: async () => {
-      let q = supabase.from("complaints").select("*, water_bodies(name,type), districts(name)");
-      // Queue remains action-stage based while dashboards show broader analytics.
-      if (rank === "wrd") {
-        q = q.in("type", ["water_flow_obstruction", "supply_channel", "surplus_channel"]);
-      } else {
-        q = q.eq("current_rank", rank as string);
-      }
+      // Strict hierarchy: each authority only acts on complaints currently at their stage.
+      let q = supabase.from("complaints").select("*, water_bodies(name,type), districts(name)")
+        .eq("current_rank", rank as string);
+      // Tahsildar / RDO receive escalated complaints only.
+      if (rank === "tahsildar" || rank === "rdo") q = q.gt("escalation_level", 0);
       const r = await q.order("sla_deadline");
       if (r.error) throw r.error; return r.data;
     },
@@ -68,10 +66,12 @@ function Page() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Assigned Complaints</h1>
-        <p className="text-sm text-muted-foreground">{rank ? RANK_LABEL[rank] : "Authority"} — actionable complaints sorted by SLA deadline.</p>
+        <h1 className="text-3xl font-bold">{rank === "vao" ? "Assigned Complaints" : "Escalated Complaints"}</h1>
+        <p className="text-sm text-muted-foreground">
+          {rank ? RANK_LABEL[rank] : "Authority"} — {rank === "vao" ? "complaints filed in your jurisdiction" : "complaints escalated to your stage"}, sorted by SLA deadline.
+        </p>
       </div>
-      {data?.length === 0 && <div className="rounded-2xl border bg-card p-12 text-center text-muted-foreground shadow-card">Queue is clear. Great work.</div>}
+      {data?.length === 0 && <div className="rounded-2xl border bg-card p-12 text-center text-muted-foreground shadow-card">{rank === "vao" ? "Queue is clear. Great work." : "No complaints have been escalated to you."}</div>}
       <div className="space-y-3">
         {data?.map((c: any) => (
           <div key={c.id} className="rounded-2xl border bg-card p-5 shadow-card">
@@ -96,7 +96,7 @@ function Page() {
                 {c.status === "submitted" && <Button size="sm" onClick={() => update.mutate({ id: c.id, patch: { status: "assigned" } })}>Acknowledge</Button>}
                 {(c.status === "assigned" || c.status === "submitted") && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "in_progress" } })}>Mark In Progress</Button>}
                 {(c.status === "in_progress" || c.status === "reinvestigating" || c.status === "assigned") && <ResolveDialog complaint={c} onDone={() => qc.invalidateQueries({ queryKey: ["officer-queue"] })} />}
-                {c.status !== "resolved" && c.current_rank !== "collector" && rank !== "wrd" && (
+                {c.status !== "resolved" && c.current_rank !== "collector" && (
                   <Button size="sm" variant="ghost" onClick={() => escalate.mutate(c)}><ArrowUpCircle className="mr-1 h-3.5 w-3.5" /> Escalate</Button>
                 )}
               </div>

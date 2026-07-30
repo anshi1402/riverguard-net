@@ -37,8 +37,8 @@ function Page() {
     enabled: !!rank,
     queryFn: async () => {
       let q = supabase.from("complaints").select("*, water_bodies(name,type), districts(name)");
-      if (rank === "wrd") q = q.in("type", ["water_flow_obstruction", "supply_channel", "surplus_channel"]);
-      else if (!isSenior) q = q.eq("current_rank", rank as string);
+      if (rank === "vao") q = q.eq("current_rank", "vao");
+      else if (rank === "tahsildar" || rank === "rdo") q = q.gt("escalation_level", 0);
       const r = await q.order("created_at", { ascending: false });
       if (r.error) throw r.error;
       return r.data;
