@@ -56,7 +56,6 @@ function Page() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-mono text-xs font-bold text-primary">{c.code}</span>
                   <StatusBadge status={c.status} />
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{c.severity}</span>
                 </div>
                 <div className="mt-1 text-base font-semibold">{c.water_bodies?.name} · {c.districts?.name}</div>
                 <div className="text-xs text-muted-foreground capitalize">{String(c.type).replace(/_/g, " ")} · filed {formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</div>
