@@ -69,6 +69,12 @@ function Landing() {
       const mismatch = wantsCitizen
         ? actualRole !== "citizen"
         : actualRole === "citizen" || (actualRole === "officer" && actualRank !== rank);
+      // Admins may use the Authority portal regardless of rank selection.
+      if (!wantsCitizen && actualRole === "admin") {
+        setBusy(false);
+        toast.success("Welcome back");
+        return;
+      }
       if (mismatch) {
         await supabase.auth.signOut();
         setBusy(false);
