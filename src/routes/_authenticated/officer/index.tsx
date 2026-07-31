@@ -234,7 +234,7 @@ function Page() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{rank ? RANK_LABEL[rank] : "Authority"} Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            BlueGeo AI · {isCollector ? "Full district view" : rank === "rdo" ? "Division-wide view" : "Taluk-wide view"} · Tamil Nadu
+            BlueGeo AI · {isCollector ? "Full district view" : "Jurisdiction view"} · Tamil Nadu
           </p>
         </div>
         <div className="rounded-full border border-success/30 bg-success/10 px-4 py-1.5 text-xs font-semibold text-success">● Live Monitoring</div>
