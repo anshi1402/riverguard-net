@@ -375,6 +375,10 @@ export type Database = {
         | "sla_breached"
         | "reinvestigating"
         | "escalated"
+        | "pending"
+        | "under_verification"
+        | "rejected"
+        | "closed"
       complaint_type:
         | "encroachment"
         | "water_contamination"
@@ -523,6 +527,10 @@ export const Constants = {
         "sla_breached",
         "reinvestigating",
         "escalated",
+        "pending",
+        "under_verification",
+        "rejected",
+        "closed",
       ],
       complaint_type: [
         "encroachment",
