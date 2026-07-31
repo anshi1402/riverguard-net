@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { StatusBadge } from "@/components/complaints/StatusBadge";
 import { SlaCountdown } from "@/components/complaints/SlaCountdown";
+import { daysOverdue } from "@/lib/complaint-status";
+import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/officer/ai-alerts")({ component: Page });
 
@@ -17,10 +19,17 @@ export function AlertsView({ districtId, title }: { districtId?: string; title: 
   const { data: overdue } = useQuery({
     queryKey: ["ai_overdue", districtId ?? "all"],
     queryFn: async () => {
-      let q = supabase.from("complaints").select("id,code,status,sla_deadline,current_rank,water_bodies(name),districts(name)")
-        .lt("sla_deadline", new Date().toISOString()).neq("status", "resolved");
+      let q = supabase.from("complaints").select("id,code,type,status,sla_deadline,current_rank,escalation_level,assigned_officer_id,water_bodies(name),districts(name)")
+        .lt("sla_deadline", new Date().toISOString()).not("status", "in", "(resolved,rejected,closed)");
       if (districtId) q = q.eq("district_id", districtId);
-      return (await q).data ?? [];
+      const rows = (await q).data ?? [];
+      const ids = Array.from(new Set(rows.map((r: any) => r.assigned_officer_id).filter(Boolean))) as string[];
+      let names: Record<string, string> = {};
+      if (ids.length) {
+        const p = await supabase.from("profiles").select("id,full_name").in("id", ids);
+        names = Object.fromEntries((p.data ?? []).map((x: any) => [x.id, x.full_name]));
+      }
+      return rows.map((r: any) => ({ ...r, officer: r.assigned_officer_id ? names[r.assigned_officer_id] ?? "Unassigned" : "Unassigned" }));
     },
   });
 
@@ -39,14 +48,22 @@ export function AlertsView({ districtId, title }: { districtId?: string; title: 
       <div className="space-y-2">
           {(overdue ?? []).length === 0 && <Empty msg="No SLA breaches — all stages on track." />}
           {(overdue ?? []).map((c: any) => (
-            <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4 shadow-card">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs font-bold text-primary">{c.code}</span>
-                <StatusBadge status={c.status} />
-                <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-destructive">Stage: {c.current_rank}</span>
-                <span className="text-sm">{c.water_bodies?.name} · {c.districts?.name}</span>
+            <div key={c.id} className="rounded-2xl border bg-card p-4 shadow-card">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-primary">{c.code}</span>
+                  <StatusBadge status={c.status} />
+                  <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-destructive">Stage: {c.current_rank}</span>
+                  <span className="text-sm font-medium capitalize">{String(c.type).replace(/_/g, " ")} · {c.water_bodies?.name} · {c.districts?.name}</span>
+                </div>
+                <SlaCountdown deadline={c.sla_deadline} />
               </div>
-              <SlaCountdown deadline={c.sla_deadline} />
+              <div className="mt-2 grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                <div><span className="font-semibold text-foreground">Officer:</span> {c.officer}</div>
+                <div><span className="font-semibold text-foreground">Due:</span> {format(new Date(c.sla_deadline), "dd MMM yyyy HH:mm")}</div>
+                <div><span className="font-semibold text-destructive">{daysOverdue(c.sla_deadline)}</span> days overdue</div>
+                <div><span className="font-semibold text-foreground">Escalation level:</span> {c.escalation_level ?? 0}</div>
+              </div>
             </div>
           ))}
       </div>

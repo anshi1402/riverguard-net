@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { StatusBadge } from "@/components/complaints/StatusBadge";
 import { SlaCountdown } from "@/components/complaints/SlaCountdown";
+import { ComplaintTimeline } from "@/components/complaints/ComplaintTimeline";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -68,6 +69,16 @@ function Page() {
                   <div className="mt-3 rounded-md border border-success/30 bg-success/5 p-2 text-xs">
                     <div className="font-semibold text-success">Officer report</div>
                     <div>{c.resolution_notes}</div>
+                  </div>
+                )}
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-xs font-semibold text-primary">View complaint timeline</summary>
+                  <div className="mt-3"><ComplaintTimeline complaintId={c.id} /></div>
+                </details>
+                {(c.image_url || c.resolution_photo_url) && (
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {c.image_url && <a href={c.image_url} target="_blank" rel="noreferrer"><img src={c.image_url} alt={`Evidence for complaint ${c.code}`} loading="lazy" className="h-24 w-32 rounded-lg object-cover" /></a>}
+                    {c.resolution_photo_url && <a href={c.resolution_photo_url} target="_blank" rel="noreferrer"><img src={c.resolution_photo_url} alt={`Resolution proof for complaint ${c.code}`} loading="lazy" className="h-24 w-32 rounded-lg object-cover" /></a>}
                   </div>
                 )}
               </div>
