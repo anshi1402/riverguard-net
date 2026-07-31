@@ -1,15 +1,25 @@
 import { cn } from "@/lib/utils";
+import { STATUS_LABEL } from "@/lib/complaint-status";
 
-const MAP: Record<string, { label: string; cls: string }> = {
-  submitted:    { label: "Submitted",    cls: "bg-primary/15 text-primary" },
-  assigned:     { label: "Assigned",     cls: "bg-accent text-accent-foreground" },
-  in_progress:  { label: "In Progress",  cls: "bg-warning/20 text-warning-foreground" },
-  resolved:     { label: "Resolved",     cls: "bg-success/20 text-success" },
-  reinvestigate:{ label: "Re-investigate", cls: "bg-destructive/15 text-destructive" },
-  sla_breached: { label: "SLA Breached", cls: "bg-destructive/20 text-destructive" },
+const CLS: Record<string, string> = {
+  submitted:          "bg-primary/15 text-primary",
+  pending:            "bg-primary/15 text-primary",
+  assigned:           "bg-accent text-accent-foreground",
+  under_verification: "bg-accent text-accent-foreground",
+  in_progress:        "bg-warning/20 text-warning-foreground",
+  escalated:          "bg-warning/25 text-warning-foreground",
+  resolved:           "bg-success/20 text-success",
+  closed:             "bg-success/15 text-success",
+  rejected:           "bg-destructive/15 text-destructive",
+  reinvestigate:      "bg-destructive/15 text-destructive",
+  reinvestigating:    "bg-destructive/15 text-destructive",
+  sla_breached:       "bg-destructive/20 text-destructive",
 };
 
 export function StatusBadge({ status }: { status: string }) {
-  const m = MAP[status] ?? { label: status, cls: "bg-muted text-muted-foreground" };
-  return <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold", m.cls)}>{m.label}</span>;
+  return (
+    <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold", CLS[status] ?? "bg-muted text-muted-foreground")}>
+      {STATUS_LABEL[status] ?? status}
+    </span>
+  );
 }
