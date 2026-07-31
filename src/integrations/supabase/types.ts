@@ -363,6 +363,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      notify_sla_warnings: { Args: never; Returns: number }
+      sla_hours_for_rank: { Args: { _rank: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "officer" | "citizen"
