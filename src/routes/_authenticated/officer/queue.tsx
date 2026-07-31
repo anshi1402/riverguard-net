@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { GeoCamera } from "@/components/complaints/GeoCamera";
 import { GeoUploader } from "@/components/complaints/GeoUploader";
+import { ComplaintTimeline } from "@/components/complaints/ComplaintTimeline";
+import { SLA_HOURS, NEXT_RANK, type Rank } from "@/lib/complaint-status";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -50,12 +52,13 @@ function Page() {
 
   const escalate = useMutation({
     mutationFn: async (c: any) => {
-      const next = c.current_rank === "vao" ? "tahsildar" : c.current_rank === "tahsildar" ? "rdo" : "collector";
+      const next = NEXT_RANK[c.current_rank as Rank] ?? "collector";
       const r = await supabase.from("complaints").update({
         current_rank: next,
+        status: "escalated" as any,
         escalation_level: (c.escalation_level ?? 0) + 1,
         last_escalated_at: new Date().toISOString(),
-        sla_deadline: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+        sla_deadline: new Date(Date.now() + SLA_HOURS[next as Rank] * 3600 * 1000).toISOString(),
       }).eq("id", c.id);
       if (r.error) throw r.error;
     },
@@ -93,14 +96,23 @@ function Page() {
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                {c.status === "submitted" && <Button size="sm" onClick={() => update.mutate({ id: c.id, patch: { status: "assigned" } })}>Acknowledge</Button>}
-                {(c.status === "assigned" || c.status === "submitted") && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "in_progress" } })}>Mark In Progress</Button>}
-                {(c.status === "in_progress" || c.status === "reinvestigating" || c.status === "assigned") && <ResolveDialog complaint={c} onDone={() => qc.invalidateQueries({ queryKey: ["officer-queue"] })} />}
+                {["submitted", "pending", "escalated"].includes(c.status) && <Button size="sm" onClick={() => update.mutate({ id: c.id, patch: { status: "assigned" } })}>Acknowledge</Button>}
+                {["submitted", "pending", "escalated", "assigned"].includes(c.status) && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "under_verification" } })}>Under Verification</Button>}
+                {["assigned", "under_verification", "submitted", "escalated"].includes(c.status) && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "in_progress" } })}>Mark In Progress</Button>}
+                {!["resolved", "rejected", "closed"].includes(c.status) && <ResolveDialog complaint={c} onDone={() => qc.invalidateQueries({ queryKey: ["officer-queue"] })} />}
+                {!["resolved", "rejected", "closed"].includes(c.status) && (
+                  <Button size="sm" variant="outline" onClick={() => { const why = window.prompt("Reason for rejecting this complaint?"); if (why) update.mutate({ id: c.id, patch: { status: "rejected", resolution_notes: why } }); }}>Reject</Button>
+                )}
+                {c.status === "resolved" && <Button size="sm" variant="outline" onClick={() => update.mutate({ id: c.id, patch: { status: "closed" } })}>Close Complaint</Button>}
                 {c.status !== "resolved" && c.current_rank !== "collector" && (
                   <Button size="sm" variant="ghost" onClick={() => escalate.mutate(c)}><ArrowUpCircle className="mr-1 h-3.5 w-3.5" /> Escalate</Button>
                 )}
               </div>
             </div>
+            <details className="mt-4 border-t pt-3">
+              <summary className="cursor-pointer text-xs font-semibold text-primary">Complaint timeline & audit trail</summary>
+              <div className="mt-3"><ComplaintTimeline complaintId={c.id} /></div>
+            </details>
           </div>
         ))}
       </div>
