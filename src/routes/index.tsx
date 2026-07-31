@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth, RANK_LABEL, type OfficerRank } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -53,8 +54,37 @@ function Landing() {
     setBusy(true);
     if (mode === "signin") {
       const { error } = await signIn(email, password);
+      if (error) { setBusy(false); return toast.error(error); }
+
+      // Portal authorization: the selected portal/role must match the account's real role.
+      const { data: sess } = await supabase.auth.getUser();
+      const uid = sess.user?.id;
+      const [{ data: r }, { data: p }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", uid!).maybeSingle(),
+        supabase.from("profiles").select("officer_rank").eq("id", uid!).maybeSingle(),
+      ]);
+      const actualRole = r?.role as string | undefined;
+      const actualRank = (p as any)?.officer_rank as string | undefined;
+      const wantsCitizen = tab === "citizen";
+      const mismatch = wantsCitizen
+        ? actualRole !== "citizen"
+        : actualRole === "citizen" || (actualRole === "officer" && actualRank !== rank);
+      // Admins may use the Authority portal regardless of rank selection.
+      if (!wantsCitizen && actualRole === "admin") {
+        setBusy(false);
+        toast.success("Welcome back");
+        return;
+      }
+      if (mismatch) {
+        await supabase.auth.signOut();
+        setBusy(false);
+        return toast.error(
+          wantsCitizen
+            ? "This account is not a citizen account. Use the Authority portal."
+            : `This account is not registered as ${RANK_LABEL[rank]}. Select the correct role.`,
+        );
+      }
       setBusy(false);
-      if (error) return toast.error(error);
       toast.success("Welcome back");
     } else {
       const meta = tab === "citizen"

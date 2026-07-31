@@ -363,6 +363,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      notify_sla_warnings: { Args: never; Returns: number }
+      sla_hours_for_rank: { Args: { _rank: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "officer" | "citizen"
@@ -375,6 +377,10 @@ export type Database = {
         | "sla_breached"
         | "reinvestigating"
         | "escalated"
+        | "pending"
+        | "under_verification"
+        | "rejected"
+        | "closed"
       complaint_type:
         | "encroachment"
         | "water_contamination"
@@ -523,6 +529,10 @@ export const Constants = {
         "sla_breached",
         "reinvestigating",
         "escalated",
+        "pending",
+        "under_verification",
+        "rejected",
+        "closed",
       ],
       complaint_type: [
         "encroachment",

@@ -28,8 +28,8 @@ function Page() {
   }, [user, qc]);
   const counts = {
     Filed: data?.length ?? 0,
-    "In Progress": data?.filter((c) => ["assigned","in_progress","reinvestigate"].includes(c.status as string)).length ?? 0,
-    Resolved: data?.filter((c) => c.status === "resolved").length ?? 0,
+    "In Progress": data?.filter((c) => ["assigned","under_verification","in_progress","escalated","reinvestigate","reinvestigating"].includes(c.status as string)).length ?? 0,
+    Resolved: data?.filter((c) => ["resolved","closed"].includes(c.status as string)).length ?? 0,
   };
   return (
     <div className="space-y-6">
