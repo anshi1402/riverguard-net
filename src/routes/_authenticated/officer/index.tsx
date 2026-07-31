@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth, RANK_LABEL } from "@/lib/auth";
 import { StatusBadge } from "@/components/complaints/StatusBadge";
 import { SlaCountdown } from "@/components/complaints/SlaCountdown";
+import { StatusAnalysis } from "@/components/complaints/StatusAnalysis";
+import { statusCounts } from "@/lib/complaint-status";
 import { format, subDays, startOfDay, startOfMonth, subMonths } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -66,6 +68,17 @@ function Page() {
   useEffect(() => {
     const ch = supabase.channel("officer-home").on("postgres_changes", { event: "*", schema: "public", table: "complaints" }, () => qc.invalidateQueries({ queryKey: ["officer-home"] })).subscribe();
     return () => { supabase.removeChannel(ch); };
+  }, [qc]);
+
+  // Run the SLA sweep (auto-escalation + breach flags + notifications) whenever an authority opens their dashboard.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: moved } = await supabase.rpc("escalate_overdue_complaints");
+      await supabase.rpc("notify_sla_warnings");
+      if (!cancelled && moved) qc.invalidateQueries({ queryKey: ["officer-home"] });
+    })();
+    return () => { cancelled = true; };
   }, [qc]);
 
   const allArr = data ?? [];
@@ -157,7 +170,13 @@ function Page() {
           <p className="text-sm text-muted-foreground">{rank ? RANK_LABEL[rank] : ""} — live queue scoped to your action stage.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
-          {[{ l: "Assigned", v: arr.length }, { l: "Active", v: analytics.active }, { l: "Overdue", v: analytics.breached }, { l: "Critical", v: analytics.critical }].map((s) => (
+          {(() => { const c = statusCounts(arr); return [
+            { l: "New Complaints", v: c.pending },
+            { l: "In Progress", v: c.in_progress + c.under_verification },
+            { l: "Pending", v: c.pending },
+            { l: "Resolved", v: c.resolved },
+            { l: "Rejected", v: c.rejected },
+          ]; })().map((s) => (
             <div key={s.l} className="rounded-xl border bg-card p-5 shadow-card"><div className="text-sm text-muted-foreground">{s.l}</div><div className="mt-2 text-3xl font-bold">{s.v}</div></div>
           ))}
         </div>
@@ -173,6 +192,27 @@ function Page() {
             {arr.length === 0 && <div className="text-sm text-muted-foreground">No actionable complaints at this stage.</div>}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Tahsildar & RDO — complaint status analysis only (no trend/region/performance analytics).
+  if (rank === "tahsildar" || rank === "rdo") {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{RANK_LABEL[rank]} Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              BlueGeo AI · Escalated complaints in your {rank === "rdo" ? "revenue division" : "taluk"} jurisdiction
+            </p>
+          </div>
+          <div className="rounded-full border border-success/30 bg-success/10 px-4 py-1.5 text-xs font-semibold text-success">● Live Monitoring</div>
+        </div>
+        <StatusAnalysis
+          rows={allArr}
+          scopeNote={rank === "rdo" ? "Complaints escalated into your region only." : "Complaints escalated from VAOs under you only."}
+        />
       </div>
     );
   }
