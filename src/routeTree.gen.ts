@@ -9,42 +9,42 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedOfficerRouteImport } from './routes/_authenticated/officer'
-import { Route as AuthenticatedCitizenRouteImport } from './routes/_authenticated/citizen'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedOfficerIndexRouteImport } from './routes/_authenticated/officer/index'
-import { Route as AuthenticatedCitizenIndexRouteImport } from './routes/_authenticated/citizen/index'
+import { Route as AuthenticatedCitizenRouteImport } from './routes/_authenticated/citizen'
+import { Route as AuthenticatedOfficerRouteImport } from './routes/_authenticated/officer'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
-import { Route as AuthenticatedOfficerQueueRouteImport } from './routes/_authenticated/officer/queue'
-import { Route as AuthenticatedOfficerNotificationsRouteImport } from './routes/_authenticated/officer/notifications'
-import { Route as AuthenticatedOfficerMapRouteImport } from './routes/_authenticated/officer/map'
-import { Route as AuthenticatedOfficerAnalyticsRouteImport } from './routes/_authenticated/officer/analytics'
-import { Route as AuthenticatedOfficerAiAlertsRouteImport } from './routes/_authenticated/officer/ai-alerts'
-import { Route as AuthenticatedCitizenTrackRouteImport } from './routes/_authenticated/citizen/track'
-import { Route as AuthenticatedCitizenNotificationsRouteImport } from './routes/_authenticated/citizen/notifications'
-import { Route as AuthenticatedCitizenFileRouteImport } from './routes/_authenticated/citizen/file'
-import { Route as AuthenticatedAdminWaterBodiesRouteImport } from './routes/_authenticated/admin/water-bodies'
-import { Route as AuthenticatedAdminSlaRouteImport } from './routes/_authenticated/admin/sla'
-import { Route as AuthenticatedAdminOfficersRouteImport } from './routes/_authenticated/admin/officers'
-import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
-import { Route as AuthenticatedAdminMapRouteImport } from './routes/_authenticated/admin/map'
-import { Route as AuthenticatedAdminComplaintsRouteImport } from './routes/_authenticated/admin/complaints'
 import { Route as AuthenticatedAdminAiAlertsRouteImport } from './routes/_authenticated/admin/ai-alerts'
+import { Route as AuthenticatedAdminComplaintsRouteImport } from './routes/_authenticated/admin/complaints'
+import { Route as AuthenticatedAdminMapRouteImport } from './routes/_authenticated/admin/map'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
+import { Route as AuthenticatedAdminOfficersRouteImport } from './routes/_authenticated/admin/officers'
+import { Route as AuthenticatedAdminSlaRouteImport } from './routes/_authenticated/admin/sla'
+import { Route as AuthenticatedAdminWaterBodiesRouteImport } from './routes/_authenticated/admin/water-bodies'
+import { Route as AuthenticatedCitizenIndexRouteImport } from './routes/_authenticated/citizen/index'
+import { Route as AuthenticatedCitizenFileRouteImport } from './routes/_authenticated/citizen/file'
+import { Route as AuthenticatedCitizenNotificationsRouteImport } from './routes/_authenticated/citizen/notifications'
+import { Route as AuthenticatedCitizenTrackRouteImport } from './routes/_authenticated/citizen/track'
+import { Route as AuthenticatedOfficerIndexRouteImport } from './routes/_authenticated/officer/index'
+import { Route as AuthenticatedOfficerAiAlertsRouteImport } from './routes/_authenticated/officer/ai-alerts'
+import { Route as AuthenticatedOfficerAnalyticsRouteImport } from './routes/_authenticated/officer/analytics'
+import { Route as AuthenticatedOfficerMapRouteImport } from './routes/_authenticated/officer/map'
+import { Route as AuthenticatedOfficerNotificationsRouteImport } from './routes/_authenticated/officer/notifications'
+import { Route as AuthenticatedOfficerQueueRouteImport } from './routes/_authenticated/officer/queue'
 
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedOfficerRoute = AuthenticatedOfficerRouteImport.update({
-  id: '/officer',
-  path: '/officer',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCitizenRoute = AuthenticatedCitizenRouteImport.update({
@@ -52,67 +52,60 @@ const AuthenticatedCitizenRoute = AuthenticatedCitizenRouteImport.update({
   path: '/citizen',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedOfficerRoute = AuthenticatedOfficerRouteImport.update({
+  id: '/officer',
+  path: '/officer',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedOfficerIndexRoute =
-  AuthenticatedOfficerIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedOfficerRoute,
-  } as any)
-const AuthenticatedCitizenIndexRoute =
-  AuthenticatedCitizenIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedCitizenRoute,
-  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedOfficerQueueRoute =
-  AuthenticatedOfficerQueueRouteImport.update({
-    id: '/queue',
-    path: '/queue',
-    getParentRoute: () => AuthenticatedOfficerRoute,
-  } as any)
-const AuthenticatedOfficerNotificationsRoute =
-  AuthenticatedOfficerNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedOfficerRoute,
-  } as any)
-const AuthenticatedOfficerMapRoute = AuthenticatedOfficerMapRouteImport.update({
-  id: '/map',
-  path: '/map',
-  getParentRoute: () => AuthenticatedOfficerRoute,
-} as any)
-const AuthenticatedOfficerAnalyticsRoute =
-  AuthenticatedOfficerAnalyticsRouteImport.update({
-    id: '/analytics',
-    path: '/analytics',
-    getParentRoute: () => AuthenticatedOfficerRoute,
-  } as any)
-const AuthenticatedOfficerAiAlertsRoute =
-  AuthenticatedOfficerAiAlertsRouteImport.update({
+const AuthenticatedAdminAiAlertsRoute =
+  AuthenticatedAdminAiAlertsRouteImport.update({
     id: '/ai-alerts',
     path: '/ai-alerts',
-    getParentRoute: () => AuthenticatedOfficerRoute,
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedCitizenTrackRoute =
-  AuthenticatedCitizenTrackRouteImport.update({
-    id: '/track',
-    path: '/track',
-    getParentRoute: () => AuthenticatedCitizenRoute,
+const AuthenticatedAdminComplaintsRoute =
+  AuthenticatedAdminComplaintsRouteImport.update({
+    id: '/complaints',
+    path: '/complaints',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedCitizenNotificationsRoute =
-  AuthenticatedCitizenNotificationsRouteImport.update({
+const AuthenticatedAdminMapRoute = AuthenticatedAdminMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
     id: '/notifications',
     path: '/notifications',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminOfficersRoute =
+  AuthenticatedAdminOfficersRouteImport.update({
+    id: '/officers',
+    path: '/officers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSlaRoute = AuthenticatedAdminSlaRouteImport.update({
+  id: '/sla',
+  path: '/sla',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminWaterBodiesRoute =
+  AuthenticatedAdminWaterBodiesRouteImport.update({
+    id: '/water-bodies',
+    path: '/water-bodies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedCitizenIndexRoute =
+  AuthenticatedCitizenIndexRouteImport.update({
+    id: '/',
+    path: '/',
     getParentRoute: () => AuthenticatedCitizenRoute,
   } as any)
 const AuthenticatedCitizenFileRoute =
@@ -121,45 +114,52 @@ const AuthenticatedCitizenFileRoute =
     path: '/file',
     getParentRoute: () => AuthenticatedCitizenRoute,
   } as any)
-const AuthenticatedAdminWaterBodiesRoute =
-  AuthenticatedAdminWaterBodiesRouteImport.update({
-    id: '/water-bodies',
-    path: '/water-bodies',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSlaRoute = AuthenticatedAdminSlaRouteImport.update({
-  id: '/sla',
-  path: '/sla',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminOfficersRoute =
-  AuthenticatedAdminOfficersRouteImport.update({
-    id: '/officers',
-    path: '/officers',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminNotificationsRoute =
-  AuthenticatedAdminNotificationsRouteImport.update({
+const AuthenticatedCitizenNotificationsRoute =
+  AuthenticatedCitizenNotificationsRouteImport.update({
     id: '/notifications',
     path: '/notifications',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    getParentRoute: () => AuthenticatedCitizenRoute,
   } as any)
-const AuthenticatedAdminMapRoute = AuthenticatedAdminMapRouteImport.update({
-  id: '/map',
-  path: '/map',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminComplaintsRoute =
-  AuthenticatedAdminComplaintsRouteImport.update({
-    id: '/complaints',
-    path: '/complaints',
-    getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedCitizenTrackRoute =
+  AuthenticatedCitizenTrackRouteImport.update({
+    id: '/track',
+    path: '/track',
+    getParentRoute: () => AuthenticatedCitizenRoute,
   } as any)
-const AuthenticatedAdminAiAlertsRoute =
-  AuthenticatedAdminAiAlertsRouteImport.update({
+const AuthenticatedOfficerIndexRoute =
+  AuthenticatedOfficerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedOfficerAiAlertsRoute =
+  AuthenticatedOfficerAiAlertsRouteImport.update({
     id: '/ai-alerts',
     path: '/ai-alerts',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedOfficerAnalyticsRoute =
+  AuthenticatedOfficerAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedOfficerMapRoute = AuthenticatedOfficerMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AuthenticatedOfficerRoute,
+} as any)
+const AuthenticatedOfficerNotificationsRoute =
+  AuthenticatedOfficerNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedOfficerRoute,
+  } as any)
+const AuthenticatedOfficerQueueRoute =
+  AuthenticatedOfficerQueueRouteImport.update({
+    id: '/queue',
+    path: '/queue',
+    getParentRoute: () => AuthenticatedOfficerRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -313,13 +313,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -327,11 +320,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/officer': {
-      id: '/_authenticated/officer'
-      path: '/officer'
-      fullPath: '/officer'
-      preLoaderRoute: typeof AuthenticatedOfficerRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/citizen': {
@@ -341,26 +341,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCitizenRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/_authenticated/officer': {
+      id: '/_authenticated/officer'
+      path: '/officer'
+      fullPath: '/officer'
+      preLoaderRoute: typeof AuthenticatedOfficerRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/officer/': {
-      id: '/_authenticated/officer/'
-      path: '/'
-      fullPath: '/officer/'
-      preLoaderRoute: typeof AuthenticatedOfficerIndexRouteImport
-      parentRoute: typeof AuthenticatedOfficerRoute
-    }
-    '/_authenticated/citizen/': {
-      id: '/_authenticated/citizen/'
-      path: '/'
-      fullPath: '/citizen/'
-      preLoaderRoute: typeof AuthenticatedCitizenIndexRouteImport
-      parentRoute: typeof AuthenticatedCitizenRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -369,95 +355,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/officer/queue': {
-      id: '/_authenticated/officer/queue'
-      path: '/queue'
-      fullPath: '/officer/queue'
-      preLoaderRoute: typeof AuthenticatedOfficerQueueRouteImport
-      parentRoute: typeof AuthenticatedOfficerRoute
-    }
-    '/_authenticated/officer/notifications': {
-      id: '/_authenticated/officer/notifications'
-      path: '/notifications'
-      fullPath: '/officer/notifications'
-      preLoaderRoute: typeof AuthenticatedOfficerNotificationsRouteImport
-      parentRoute: typeof AuthenticatedOfficerRoute
-    }
-    '/_authenticated/officer/map': {
-      id: '/_authenticated/officer/map'
-      path: '/map'
-      fullPath: '/officer/map'
-      preLoaderRoute: typeof AuthenticatedOfficerMapRouteImport
-      parentRoute: typeof AuthenticatedOfficerRoute
-    }
-    '/_authenticated/officer/analytics': {
-      id: '/_authenticated/officer/analytics'
-      path: '/analytics'
-      fullPath: '/officer/analytics'
-      preLoaderRoute: typeof AuthenticatedOfficerAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedOfficerRoute
-    }
-    '/_authenticated/officer/ai-alerts': {
-      id: '/_authenticated/officer/ai-alerts'
+    '/_authenticated/admin/ai-alerts': {
+      id: '/_authenticated/admin/ai-alerts'
       path: '/ai-alerts'
-      fullPath: '/officer/ai-alerts'
-      preLoaderRoute: typeof AuthenticatedOfficerAiAlertsRouteImport
-      parentRoute: typeof AuthenticatedOfficerRoute
-    }
-    '/_authenticated/citizen/track': {
-      id: '/_authenticated/citizen/track'
-      path: '/track'
-      fullPath: '/citizen/track'
-      preLoaderRoute: typeof AuthenticatedCitizenTrackRouteImport
-      parentRoute: typeof AuthenticatedCitizenRoute
-    }
-    '/_authenticated/citizen/notifications': {
-      id: '/_authenticated/citizen/notifications'
-      path: '/notifications'
-      fullPath: '/citizen/notifications'
-      preLoaderRoute: typeof AuthenticatedCitizenNotificationsRouteImport
-      parentRoute: typeof AuthenticatedCitizenRoute
-    }
-    '/_authenticated/citizen/file': {
-      id: '/_authenticated/citizen/file'
-      path: '/file'
-      fullPath: '/citizen/file'
-      preLoaderRoute: typeof AuthenticatedCitizenFileRouteImport
-      parentRoute: typeof AuthenticatedCitizenRoute
-    }
-    '/_authenticated/admin/water-bodies': {
-      id: '/_authenticated/admin/water-bodies'
-      path: '/water-bodies'
-      fullPath: '/admin/water-bodies'
-      preLoaderRoute: typeof AuthenticatedAdminWaterBodiesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/sla': {
-      id: '/_authenticated/admin/sla'
-      path: '/sla'
-      fullPath: '/admin/sla'
-      preLoaderRoute: typeof AuthenticatedAdminSlaRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/officers': {
-      id: '/_authenticated/admin/officers'
-      path: '/officers'
-      fullPath: '/admin/officers'
-      preLoaderRoute: typeof AuthenticatedAdminOfficersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/notifications': {
-      id: '/_authenticated/admin/notifications'
-      path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/map': {
-      id: '/_authenticated/admin/map'
-      path: '/map'
-      fullPath: '/admin/map'
-      preLoaderRoute: typeof AuthenticatedAdminMapRouteImport
+      fullPath: '/admin/ai-alerts'
+      preLoaderRoute: typeof AuthenticatedAdminAiAlertsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/complaints': {
@@ -467,12 +369,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminComplaintsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/ai-alerts': {
-      id: '/_authenticated/admin/ai-alerts'
-      path: '/ai-alerts'
-      fullPath: '/admin/ai-alerts'
-      preLoaderRoute: typeof AuthenticatedAdminAiAlertsRouteImport
+    '/_authenticated/admin/map': {
+      id: '/_authenticated/admin/map'
+      path: '/map'
+      fullPath: '/admin/map'
+      preLoaderRoute: typeof AuthenticatedAdminMapRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/officers': {
+      id: '/_authenticated/admin/officers'
+      path: '/officers'
+      fullPath: '/admin/officers'
+      preLoaderRoute: typeof AuthenticatedAdminOfficersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/sla': {
+      id: '/_authenticated/admin/sla'
+      path: '/sla'
+      fullPath: '/admin/sla'
+      preLoaderRoute: typeof AuthenticatedAdminSlaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/water-bodies': {
+      id: '/_authenticated/admin/water-bodies'
+      path: '/water-bodies'
+      fullPath: '/admin/water-bodies'
+      preLoaderRoute: typeof AuthenticatedAdminWaterBodiesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/citizen/': {
+      id: '/_authenticated/citizen/'
+      path: '/'
+      fullPath: '/citizen/'
+      preLoaderRoute: typeof AuthenticatedCitizenIndexRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/citizen/file': {
+      id: '/_authenticated/citizen/file'
+      path: '/file'
+      fullPath: '/citizen/file'
+      preLoaderRoute: typeof AuthenticatedCitizenFileRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/citizen/notifications': {
+      id: '/_authenticated/citizen/notifications'
+      path: '/notifications'
+      fullPath: '/citizen/notifications'
+      preLoaderRoute: typeof AuthenticatedCitizenNotificationsRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/citizen/track': {
+      id: '/_authenticated/citizen/track'
+      path: '/track'
+      fullPath: '/citizen/track'
+      preLoaderRoute: typeof AuthenticatedCitizenTrackRouteImport
+      parentRoute: typeof AuthenticatedCitizenRoute
+    }
+    '/_authenticated/officer/': {
+      id: '/_authenticated/officer/'
+      path: '/'
+      fullPath: '/officer/'
+      preLoaderRoute: typeof AuthenticatedOfficerIndexRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/ai-alerts': {
+      id: '/_authenticated/officer/ai-alerts'
+      path: '/ai-alerts'
+      fullPath: '/officer/ai-alerts'
+      preLoaderRoute: typeof AuthenticatedOfficerAiAlertsRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/analytics': {
+      id: '/_authenticated/officer/analytics'
+      path: '/analytics'
+      fullPath: '/officer/analytics'
+      preLoaderRoute: typeof AuthenticatedOfficerAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/map': {
+      id: '/_authenticated/officer/map'
+      path: '/map'
+      fullPath: '/officer/map'
+      preLoaderRoute: typeof AuthenticatedOfficerMapRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/notifications': {
+      id: '/_authenticated/officer/notifications'
+      path: '/notifications'
+      fullPath: '/officer/notifications'
+      preLoaderRoute: typeof AuthenticatedOfficerNotificationsRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
+    }
+    '/_authenticated/officer/queue': {
+      id: '/_authenticated/officer/queue'
+      path: '/queue'
+      fullPath: '/officer/queue'
+      preLoaderRoute: typeof AuthenticatedOfficerQueueRouteImport
+      parentRoute: typeof AuthenticatedOfficerRoute
     }
   }
 }
