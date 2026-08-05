@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { MapPin, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { MapPin, Loader2, CheckCircle2, AlertTriangle, XCircle, ScanSearch } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,23 @@ import { GeoCamera } from "@/components/complaints/GeoCamera";
 import { GeoUploader } from "@/components/complaints/GeoUploader";
 import { toast } from "sonner";
 import type { GeoPoint } from "@/lib/geo";
+import { validateComplaintImage, type ImageVerdict } from "@/lib/image-validation.functions";
 
 export const Route = createFileRoute("/_authenticated/citizen/file")({ component: Page });
+
+async function toDataUrl(file: File, maxSide = 1024): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error("Could not read image")); img.src = url; });
+    const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * scale);
+    c.height = Math.round(img.naturalHeight * scale);
+    c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.85);
+  } finally { URL.revokeObjectURL(url); }
+}
 
 const TYPES = [
   { v: "encroachment",            l: "Water Body Encroachment (Lake / Tank / Pond)" },
@@ -31,6 +47,26 @@ function Page() {
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [geo, setGeo] = useState<GeoPoint | null>(null);
+  const [aiState, setAiState] = useState<"idle" | "checking" | "passed" | "failed">("idle");
+  const [aiVerdict, setAiVerdict] = useState<ImageVerdict | null>(null);
+  const runValidation = useServerFn(validateComplaintImage);
+
+  const analyze = async (f: File, complaintType: string): Promise<ImageVerdict | null> => {
+    setAiState("checking"); setAiVerdict(null);
+    try {
+      const imageDataUrl = await toDataUrl(f);
+      const verdict = await runValidation({ data: { imageDataUrl, complaintType } });
+      setAiVerdict(verdict);
+      setAiState(verdict.ok ? "passed" : "failed");
+      return verdict;
+    } catch (e: any) {
+      setAiVerdict({ ok: false, confidence: 0, category: null, reason: e?.message ?? "Validation failed" });
+      setAiState("failed");
+      return null;
+    }
+  };
+
+  const acceptPhoto = (f: File, g: GeoPoint) => { setFile(f); setGeo(g); void analyze(f, type); };
 
   const { data: districts } = useQuery({
     queryKey: ["districts"],
@@ -50,6 +86,9 @@ function Page() {
       if (!districtId || !waterBodyId) throw new Error("Pick district and water body");
       if (!description.trim()) throw new Error("Add a description");
       if (!file || !geo) throw new Error("Add a geo-tagged photo");
+      // Server-side re-validation so the check cannot be bypassed from the browser.
+      const verdict = await analyze(file, type);
+      if (!verdict?.ok) throw new Error("Image validation failed — upload a valid photo of the reported issue");
       const path = `${user.id}/${Date.now()}-${file.name}`;
       const up = await supabase.storage.from("complaint-photos").upload(path, file, { contentType: file.type, upsert: false });
       if (up.error) throw up.error;
@@ -106,9 +145,29 @@ function Page() {
         <div className="space-y-2">
           <Label>Geo-tagged Evidence Photo</Label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <GeoUploader onPicked={(f, g) => { setFile(f); setGeo(g); }} />
-            <GeoCamera onCapture={(f, g) => { setFile(f); setGeo(g); }} />
+            <GeoUploader onPicked={acceptPhoto} />
+            <GeoCamera onCapture={acceptPhoto} />
           </div>
+          {file && aiState === "checking" && (
+            <div className="mt-3 flex items-center gap-2 rounded-xl border bg-muted/40 p-3 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" /> Analyzing image…
+            </div>
+          )}
+          {file && aiState === "passed" && (
+            <div className="mt-3 rounded-xl border border-success/40 bg-success/5 p-3 text-sm">
+              <div className="flex items-center gap-1.5 font-semibold text-success"><CheckCircle2 className="h-4 w-4" /> Image Verified</div>
+              <p className="mt-1 text-xs text-muted-foreground">The uploaded image appears to be relevant to the selected complaint.{aiVerdict ? ` (${Math.round(aiVerdict.confidence * 100)}% confidence)` : ""}</p>
+            </div>
+          )}
+          {file && aiState === "failed" && (
+            <div className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm">
+              <div className="flex items-center gap-1.5 font-semibold text-destructive"><XCircle className="h-4 w-4" /> Image Validation Failed</div>
+              <p className="mt-1 text-xs text-muted-foreground">This image does not appear to be related to a water body encroachment or environmental complaint. Please upload a valid image showing the reported issue.{aiVerdict?.reason ? ` — ${aiVerdict.reason}` : ""}</p>
+              <Button type="button" size="sm" variant="outline" className="mt-2" onClick={() => file && analyze(file, type)}>
+                <ScanSearch className="mr-1 h-4 w-4" /> Re-run analysis
+              </Button>
+            </div>
+          )}
           {preview && geo && (
             <div className="mt-3 flex flex-wrap gap-3 rounded-xl border border-success/40 bg-success/5 p-3">
               <img src={preview} alt="evidence" className="h-24 w-32 rounded-md object-cover" />
@@ -128,9 +187,18 @@ function Page() {
           )}
         </div>
 
-        <Button onClick={() => submit.mutate()} disabled={submit.isPending} className="w-full bg-gradient-primary text-base font-semibold">
-          {submit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Complaint"}
+        <Button
+          onClick={() => submit.mutate()}
+          disabled={submit.isPending || !geo || !file || aiState !== "passed"}
+          className="w-full bg-gradient-primary text-base font-semibold"
+        >
+          {submit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : aiState === "checking" ? "Analyzing image…" : "Submit Complaint"}
         </Button>
+        {(!geo || aiState !== "passed") && (
+          <p className="text-center text-xs text-muted-foreground">
+            {!geo ? "GPS verification is required." : aiState === "failed" ? "AI image validation failed — upload another photo." : "Complete AI image validation to submit."}
+          </p>
+        )}
       </div>
     </div>
   );
