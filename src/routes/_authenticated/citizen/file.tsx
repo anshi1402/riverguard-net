@@ -132,7 +132,7 @@ function Page() {
 
         <div className="space-y-2">
           <Label>Type of Water Encroachment</Label>
-          <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={type} onChange={(e) => setType(e.target.value)}>
+          <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={type} onChange={(e) => { const v = e.target.value; setType(v); if (file) void analyze(file, v); }}>
             {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
           </select>
         </div>
